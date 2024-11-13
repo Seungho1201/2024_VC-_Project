@@ -121,38 +121,168 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+
+// 전역 변수
+RECT playerBox = { 0, 0, 100, 100 };
+
+RECT t1 = { 10, 500, 600, 600 };
+
+RECT t2 = { 800, 200, 1000, 700 };
+
+RECT a;
+
+#define IDT_TIMER1 1
+#define IDT_GRAVITY_TIMER 3
+#define JUMP_HEIGHT 50
+#define GRAVITY_SPEED 7
+#define GRAVITY_ACCELERATION 0.5f // 중력 가속도
+#define MAX_GRAVITY_SPEED 10.0f   // 최대 중력 속도
+
+bool isJumping = false; // 점프 상태 변수
+bool isInAir = true;     // 중력 적용 상태 변수
+float gravityVelocity = 0.0f;    // 중력 속도
+
+// WndProc 함수
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static bool isMovingRight = false;
+    static bool isMovingLeft = false;
+    static bool isMovingUp = false;
+
     switch (message)
     {
-    case WM_COMMAND:
+    case WM_CREATE:
+
+        /// 중력 타이머 설정
+        SetTimer(hWnd, IDT_GRAVITY_TIMER, 10, NULL); 
+        break;
+
+    case WM_KEYDOWN:
+    {
+        switch (wParam)
         {
-            int wmId = LOWORD(wParam);
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId)
+        case VK_RIGHT:
+            isMovingRight = true;
+            SetTimer(hWnd, IDT_TIMER1, 5, NULL); 
+            break;
+
+        case VK_LEFT:
+            isMovingLeft = true;
+            SetTimer(hWnd, IDT_TIMER1, 5, NULL);
+            break;
+
+        case VK_UP:
+            isMovingUp = true;
+            KillTimer(hWnd, IDT_GRAVITY_TIMER);
+            SetTimer(hWnd, IDT_TIMER1, 5, NULL);
+            break;
+        }
+        break;
+    }
+    case WM_KEYUP:
+    {
+        switch (wParam)
+        {
+        case VK_RIGHT:
+            isMovingRight = false;
+            break;
+
+        case VK_LEFT:
+            isMovingLeft = false;
+            break;
+
+        case VK_UP:
+            SetTimer(hWnd, IDT_GRAVITY_TIMER, 10, NULL);
+            isInAir = true;
+            isMovingUp = false;
+            break;
+        }
+
+        if (!isMovingRight && !isMovingLeft && !isMovingUp)
+        {
+            KillTimer(hWnd, IDT_TIMER1); // 모든 이동 중지 시 타이머 해제
+        }
+        break;
+    }
+    case WM_TIMER:
+    {
+        if (wParam == IDT_TIMER1)
+        {
+            if (isMovingRight)  { playerBox.left += 4; playerBox.right += 4; }
+            if (isMovingLeft)   { playerBox.left -= 4; playerBox.right -= 4; }
+            if (isMovingUp)     { playerBox.top -= 4; playerBox.bottom -= 4; }
+
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
+        else if (wParam == IDT_GRAVITY_TIMER)
+        {
+            // 충돌 감지
+            if (IntersectRect(&a, &t1, &playerBox) || IntersectRect(&a, &t2, &playerBox))
             {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
+                isInAir = false;
+                gravityVelocity = 0.0f; // 바닥에 닿으면 중력 속도를 초기화
+            }
+            else
+            {
+                isInAir = true;
+            }
+
+            // 중력 가속도 적용
+            if (isInAir)
+            {
+                gravityVelocity += GRAVITY_ACCELERATION; // 가속도 추가
+                if (gravityVelocity > MAX_GRAVITY_SPEED)
+                {
+                    gravityVelocity = MAX_GRAVITY_SPEED; // 최대 속도 제한
+                }
+
+                playerBox.top += (int)gravityVelocity;
+                playerBox.bottom += (int)gravityVelocity;
+
+                
             }
         }
+        InvalidateRect(hWnd, NULL, TRUE);
         break;
+    }
+
     case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            EndPaint(hWnd, &ps);
-        }
-        break;
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        // 더블 버퍼링
+        HDC hMemDC = CreateCompatibleDC(hdc);
+        HBITMAP hBitmap = CreateCompatibleBitmap(hdc, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top);
+        HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBitmap);
+
+        FillRect(hMemDC, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+
+        Rectangle(hMemDC, playerBox.left, playerBox.top, playerBox.right, playerBox.bottom);
+        Rectangle(hMemDC, t1.left, t1.top, t1.right, t1.bottom);
+        Rectangle(hMemDC, t2.left, t2.top, t2.right, t2.bottom);
+
+
+
+
+        BitBlt(hdc, ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right - ps.rcPaint.left, ps.rcPaint.bottom - ps.rcPaint.top, hMemDC, 0, 0, SRCCOPY);
+
+        SelectObject(hMemDC, hOldBitmap);
+        DeleteObject(hBitmap);
+        DeleteDC(hMemDC);
+
+        EndPaint(hWnd, &ps);
+    }
+    break;
+
+    case WM_ERASEBKGND:
+        return 1; // 화면 지우기 방지
+
     case WM_DESTROY:
+        KillTimer(hWnd, IDT_GRAVITY_TIMER); // 중력 타이머 해제
         PostQuitMessage(0);
         break;
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
