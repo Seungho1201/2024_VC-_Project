@@ -137,14 +137,22 @@ bool IsCollidingWithWall(RECT player, int grid[GRID_ROWS][GRID_COLS], int dx, in
 {
     RECT newPlayerPosition = { player.left + dx, player.top + dy, player.right + dx, player.bottom + dy };
 
-    for (int i = 0; i < GRID_ROWS; i++)
+    // 플레이어의 위치를 기준으로 검사할 격자 영역 계산
+    int startRow =  max(0, (newPlayerPosition.top - offset) / CELL_HEIGHT);
+    int endRow =    min(GRID_ROWS - 1, (newPlayerPosition.bottom - offset) / CELL_HEIGHT);
+    int startCol =  max(0, (newPlayerPosition.left - offset) / CELL_WIDTH);
+    int endCol =    min(GRID_COLS - 1, (newPlayerPosition.right - offset) / CELL_WIDTH);
+
+    // 지정된 범위 내의 격자만 검사
+    for (int i = startRow; i <= endRow; i++)
     {
-        for (int j = 0; j < GRID_COLS; j++)
+        for (int j = startCol; j <= endCol; j++)
         {
-            if (grid[i][j] == 1) // 벽이 있는 셀만 체크
+            if (grid[i][j] == 1) // 벽인 경우
             {
                 RECT wallRect = { j * CELL_WIDTH + offset, i * CELL_HEIGHT + offset,
                                   (j + 1) * CELL_WIDTH + offset, (i + 1) * CELL_HEIGHT + offset };
+
                 RECT intersection;
                 if (IntersectRect(&intersection, &newPlayerPosition, &wallRect))
                 {
@@ -160,14 +168,22 @@ bool IsCollidingWithItem(RECT player, int grid[GRID_ROWS][GRID_COLS], int dx, in
 {
     RECT newPlayerPosition = { player.left + dx, player.top + dy, player.right + dx, player.bottom + dy };
 
-    for (int i = 0; i < GRID_ROWS; i++)
+    // 플레이어의 위치를 기준으로 검사할 격자 영역 계산
+    int startRow =  max(0, (newPlayerPosition.top - offset) / CELL_HEIGHT);
+    int endRow =    min(GRID_ROWS - 1, (newPlayerPosition.bottom - offset) / CELL_HEIGHT);
+    int startCol =  max(0, (newPlayerPosition.left - offset) / CELL_WIDTH);
+    int endCol =    min(GRID_COLS - 1, (newPlayerPosition.right - offset) / CELL_WIDTH);
+
+    // 지정된 범위 내의 격자만 검사
+    for (int i = startRow; i <= endRow; i++)
     {
-        for (int j = 0; j < GRID_COLS; j++)
+        for (int j = startCol; j <= endCol; j++)
         {
-            if (grid[i][j] == 2) // 아이템이 있는 셀만 체크
+            if (grid[i][j] == 2) // 아이템인 경우
             {
                 RECT itemRect = { j * CELL_WIDTH + offset, i * CELL_HEIGHT + offset,
                                   (j + 1) * CELL_WIDTH + offset, (i + 1) * CELL_HEIGHT + offset };
+
                 RECT intersection;
                 if (IntersectRect(&intersection, &newPlayerPosition, &itemRect))
                 {
@@ -230,7 +246,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             grid[y][12] = 1;
         }
-        for (int y = 7; y > 2; y--)
+        for (int y = 6; y > 2; y--)
         {
             grid[y][15] = 1;
         }
@@ -244,6 +260,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             grid[9][y] = 1;
         }
+        for (int y = 3; y < 10; y++)
+        {
+            grid[4][y] = 1;
+        }
+
         
         grid[1][2] = 2; // (1, 2) 위치에 아이템을 설정
 
@@ -293,7 +314,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
 
         /// 입력 없을시 이동 타이머 KILL
-        if (!isMovingRight && !isMovingLeft && !isMovingUp)
+        if (!isMovingRight && !isMovingLeft)
         {
             KillTimer(hWnd, IDT_TIMER1); 
         }
@@ -316,7 +337,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 playerBox = tempPlayerBox; // 충돌이 없을 경우에만 이동
             }
-            // 충돌 여부 확인
+            // 아이템 충돌 여부 확인
             if (IsCollidingWithItem(tempPlayerBox, grid, 0, 0))
             {
                 //KillTimer(hWnd, IDT_TIMER1);
