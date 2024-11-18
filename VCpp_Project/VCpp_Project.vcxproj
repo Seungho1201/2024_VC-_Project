@@ -127,12 +127,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Engine_Acceleration.h" />
+    <ClInclude Include="Engine_Data.h" />
+    <ClInclude Include="Engine_DrawMap.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="VCpp_Project.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Engine_Acceleration.cpp" />
+    <ClCompile Include="Engine_Data.cpp" />
+    <ClCompile Include="Engine_DrawMap.cpp" />
     <ClCompile Include="VCpp_Project.cpp" />
   </ItemGroup>
   <ItemGroup>

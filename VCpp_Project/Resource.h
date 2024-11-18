@@ -15,6 +15,26 @@
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
+
+/// 맵 구성
+#define GRID_ROWS 13 // 격자 행 수
+#define GRID_COLS 27 // 격자 열 수
+#define CELL_WIDTH 50 // 격자 셀 너비
+#define CELL_HEIGHT 50 // 격자 셀 높이
+
+#define IDT_TIMER1 1
+#define IDT_GRAVITY_TIMER 3
+#define JUMP_HEIGHT 10
+#define GRAVITY_SPEED 5
+
+/// 가속도 관련
+
+#define MOVE_ACCELERATION       0.05f    /// 중력 가속도
+#define GRAVITY_ACCELERATION    0.25f    /// 중력 가속도
+#define MAX_GRAVITY_SPEED       17.00f   /// 최대 중력 속도
+#define MAX_PLAYER_SPEED        7.5f
+#define BASIC_PLAYER_SPEED      5.0f
+
 #endif
 // 다음은 새 개체에 사용할 기본값입니다.
 //
