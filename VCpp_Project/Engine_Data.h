@@ -6,10 +6,13 @@
 
 class EngineData {
 public:
-    static int mapGrid[GRID_ROWS][GRID_COLS];
-    static float playerSpeed;                   // 0은 빈 공간, 1은 벽, 2는 아이템
-    static float gravityVelocity;
+    static int mapGrid[GRID_ROWS][GRID_COLS];   // 2차원 맵
+    static int mapOffset;                       // RECT 간격
 
-    static RECT userBox;
+    static float playerSpeed;                   // 플레이어 속도              
+    static float gravityVelocity;               // 중력 값
+
+    static RECT userBox;                        // 플레이어 RECT
+
 
 };

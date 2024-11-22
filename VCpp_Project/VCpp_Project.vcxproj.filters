@@ -63,5 +63,11 @@
     <Image Include="VCpp_Project.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="..\image\BACK_TEST.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\BACK_TEST2.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

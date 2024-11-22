@@ -22,18 +22,26 @@
 #define CELL_WIDTH 50 // 격자 셀 너비
 #define CELL_HEIGHT 50 // 격자 셀 높이
 
-#define IDT_TIMER1 1
-#define IDT_GRAVITY_TIMER 3
-#define JUMP_HEIGHT 10
+/// 좌우 이동 타이머
+#define IDT_TIMER1 100
+
+/// 중력 및 가속도 계산 타이머
+#define IDT_GRAVITY_TIMER 200
+#define IDT_BOUNCE_TIMER 300
+
+#define JUMP_HEIGHT 8
 #define GRAVITY_SPEED 5
 
 /// 가속도 관련
-
 #define MOVE_ACCELERATION       0.05f    /// 중력 가속도
 #define GRAVITY_ACCELERATION    0.25f    /// 중력 가속도
 #define MAX_GRAVITY_SPEED       17.00f   /// 최대 중력 속도
 #define MAX_PLAYER_SPEED        7.5f
 #define BASIC_PLAYER_SPEED      5.0f
+
+#define IDB_BACKGROUND 101
+
+#define IDB_BACKGROUND2  102
 
 #endif
 // 다음은 새 개체에 사용할 기본값입니다.

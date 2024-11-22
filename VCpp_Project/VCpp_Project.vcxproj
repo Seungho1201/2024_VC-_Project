@@ -145,6 +145,8 @@
     <ResourceCompile Include="VCpp_Project.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\image\BACK_TEST.bmp" />
+    <Image Include="..\image\BACK_TEST2.bmp" />
     <Image Include="small.ico" />
     <Image Include="VCpp_Project.ico" />
   </ItemGroup>
