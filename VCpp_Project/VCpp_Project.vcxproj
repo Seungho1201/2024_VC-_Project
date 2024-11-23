@@ -151,6 +151,8 @@
     <Image Include="..\image\BACK_TEST2.bmp" />
     <Image Include="..\image\Develop_Icon.ico" />
     <Image Include="..\image\Exit_Icon.ico" />
+    <Image Include="..\image\Guide_Icon.ico" />
+    <Image Include="..\image\MainExit_Icon.ico" />
     <Image Include="..\image\Play_Button.ico" />
     <Image Include="small.ico" />
     <Image Include="VCpp_Project.ico" />

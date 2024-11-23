@@ -2,14 +2,18 @@
 
 /// 1 : 벽
 /// 2 : 아이템
+/// 3 : 적
+/// 4 : 클리어 지점
 
 
 void Engine_DrawMap::settingMap()
 {
-    // 예제: 첫 번째 행과 두 번째 행에 벽과 아이템을 배치
+    /// EngineData::mapGrid[y][x]
+    /// developMode 켜서 좌표 확인이 편함
+    
     for (int i = 0; i < 50; i++)
     {
-        EngineData::mapGrid[12][i] = 1;     // (0, 1) 위치에 벽을 설정
+        EngineData::mapGrid[12][i] = 1;     
     }
 
     for (int y = 10; y > 6; y--)
@@ -49,9 +53,13 @@ void Engine_DrawMap::settingMap()
 
     EngineData::mapGrid[9][6] = 3; // (1, 2) 위치에 아이템을 설정
     EngineData::mapGrid[3][22] = 3; // (1, 2) 위치에 아이템을 설정
+
+    EngineData::mapGrid[10][25] = 4; // (1, 2) 위치에 아이템을 설정
 }
+
 void Engine_DrawMap::drawMap(HDC hMemDC)
 {
+
     for (int i = 0; i < GRID_ROWS; i++)
     {
         for (int j = 0; j < GRID_COLS; j++)
@@ -91,6 +99,21 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
                 HPEN hOldPen = (HPEN)SelectObject(hMemDC, hNullPen); // 이전 펜 저장
                 // 아이템을 초록색 원으로 표시
                 HBRUSH itemBrush = CreateSolidBrush(RGB(255, 0, 0)); // 초록색
+                HBRUSH oldBrush = (HBRUSH)SelectObject(hMemDC, itemBrush);
+
+                Rectangle(hMemDC, cellRect.left, cellRect.top, cellRect.right, cellRect.bottom);
+                // 이전 펜 복원
+                SelectObject(hMemDC, hOldPen);
+
+                SelectObject(hMemDC, oldBrush); // 이전 브러시로 복원
+                DeleteObject(itemBrush);
+            }
+            else if (EngineData::mapGrid[i][j] == 4) // 클리어 지점
+            {
+                HPEN hNullPen = (HPEN)GetStockObject(NULL_PEN); // 투명한 펜 생성
+                HPEN hOldPen = (HPEN)SelectObject(hMemDC, hNullPen); // 이전 펜 저장
+                // 아이템을 초록색 원으로 표시
+                HBRUSH itemBrush = CreateSolidBrush(RGB(0, 0, 150)); // 초록색
                 HBRUSH oldBrush = (HBRUSH)SelectObject(hMemDC, itemBrush);
 
                 Rectangle(hMemDC, cellRect.left, cellRect.top, cellRect.right, cellRect.bottom);
@@ -159,7 +182,7 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
    
 }
 
-void Engine_DrawMap::drawInfo(HDC hMemDC, int mouse_X, int mouse_Y)
+void Engine_DrawMap::drawInfo(HDC hMemDC)
 {
     if (EngineData::developMode) {
         WCHAR buffer[50];

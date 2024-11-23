@@ -6,14 +6,9 @@
 
 class Engine_DrawMap {
 public:
-
-
-
    static void settingMap();
 
    static void drawMap(HDC hMemDC);
 
-   static void drawInfo(HDC hMemDC, int mouse_X, int mouse_Y);
-
-
+   static void drawInfo(HDC hMemDC);
 };

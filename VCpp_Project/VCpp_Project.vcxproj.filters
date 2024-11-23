@@ -84,5 +84,11 @@
     <Image Include="..\image\Develop_Icon.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="..\image\Guide_Icon.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\MainExit_Icon.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -16,4 +16,7 @@ public:
     static HWND playButton;
     static bool developMode;
 
+    static HBITMAP hBackground;
+
+    static float imageMove;
 };
