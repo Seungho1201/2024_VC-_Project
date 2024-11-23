@@ -15,3 +15,7 @@
 #include <tchar.h>
 #include <string.h>
 #include <string>
+#include <thread>
+#include <vector>
+#include <mutex>
+

@@ -294,10 +294,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             case 'C': 
             {
-                isJumping = true;        // 점프 중으로 설정
-                isInAir = true;          // C 키를 누르면 공중 상태로 설정
-                EngineData::gravityVelocity = -JUMP_HEIGHT;                 /// 현재 중력값을 -로 설정
-               // SetTimer(hWnd, IDT_GRAVITY_TIMER, 1, NULL);     /// 타이머 적용
+                if (!isJumping)
+                {
+                    isJumping = true;        // 점프 중으로 설정
+
+                    isInAir = true;          // C 키를 누르면 공중 상태로 설정
+                    EngineData::gravityVelocity = -JUMP_HEIGHT;                 /// 현재 중력값을 -로 설정
+                }
             }
             break;
         }
@@ -316,7 +319,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case 'C':
-            isJumping = false;
+
             break;
         }
 
@@ -335,8 +338,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             RECT tempPlayerBox = EngineData::userBox;
 
             /// 방향키 이동
-            if (isMovingRight)  { 
-                tempPlayerBox.left += EngineData::playerSpeed; tempPlayerBox.right += EngineData::playerSpeed; 
+            if (isMovingRight) 
+            { 
+                tempPlayerBox.left += EngineData::playerSpeed; 
+                tempPlayerBox.right += EngineData::playerSpeed; 
                 
                 if (!IsCollidingWithWall(tempPlayerBox, EngineData::mapGrid, 0, 0))
                 {
@@ -349,8 +354,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     break;
                 }            
             }
-            if (isMovingLeft)   { 
-                tempPlayerBox.left -= EngineData::playerSpeed; tempPlayerBox.right -= EngineData::playerSpeed; 
+            
+            if (isMovingLeft)   
+            { 
+                tempPlayerBox.left -= EngineData::playerSpeed; 
+                tempPlayerBox.right -= EngineData::playerSpeed; 
+                
                 if (!IsCollidingWithWall(tempPlayerBox, EngineData::mapGrid, 0, 0))
                 {
                     if (!(tempPlayerBox.left < clientRect.left + 50))
@@ -360,24 +369,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     }     
                     break;
                 }
-               
-            }
-            if (isMovingUp)     { tempPlayerBox.top  -= EngineData::playerSpeed; tempPlayerBox.bottom -= EngineData::playerSpeed; }
-
-            /// 충돌 판정은 이동에서 판정한다
-
-            /*
-            // 충돌 여부 확인
-            if (!IsCollidingWithWall(tempPlayerBox, EngineData::mapGrid, 0, 0))
-            {
-                EngineData::userBox = tempPlayerBox; // 충돌이 없을 경우에만 이동;
-            }
-            */
-            // 아이템 충돌 여부 확인
-            if (IsCollidingWithItem(tempPlayerBox, EngineData::mapGrid, 0, 0))
-            {
-                //KillTimer(hWnd, IDT_TIMER1);
-                //MessageBox(hWnd, L"아이템", L"아이템", MB_OK);
             }
         }
 
@@ -396,13 +387,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             if (!IsCollidingWithWall(EngineData::userBox, EngineData::mapGrid, 0, EngineData::gravityVelocity))
             {
+                // 아이템 충돌 여부 확인
+                if (IsCollidingWithItem(EngineData::userBox, EngineData::mapGrid, 0, 0))
+                {
+                    isJumping = false;
+                    EngineData::gravityVelocity = -10; // JUMP_HEIGHT는 위로 튀어오를 속도
+                    isInAir = true; // 공중 상태 설정
+                }
+
                 // 중력에 따라 이동
                 EngineData::userBox.top = newY;
                 EngineData::userBox.bottom = EngineData::userBox.top + 30;
                 isInAir = true;
+
             }
             else
             {
+                /// 바닥에 한번 충돌해야 점프 재사용 가능
+                isJumping = false;
+
                 // 충돌 발생 시 바운스
                 if (EngineData::gravityVelocity >3.5) 
                 {
@@ -411,8 +414,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 } else {
                     // 매우 낮은 속도일 때 정지
                     EngineData::gravityVelocity = 2;
+                    
                 }
-                isInAir = true;
             }
 
             // 지면에 있을 때 마찰 적용
