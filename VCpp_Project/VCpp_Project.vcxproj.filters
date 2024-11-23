@@ -36,6 +36,9 @@
     <ClInclude Include="Engine_DrawMap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Engine_MakeButton.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VCpp_Project.cpp">
@@ -48,6 +51,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Engine_DrawMap.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine_MakeButton.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -67,6 +73,15 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="..\image\BACK_TEST2.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\Play_Button.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\Exit_Icon.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\Develop_Icon.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

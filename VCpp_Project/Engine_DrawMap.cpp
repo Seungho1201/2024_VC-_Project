@@ -46,6 +46,9 @@ void Engine_DrawMap::settingMap()
     EngineData::mapGrid[10][2] = 2; // (1, 2) 위치에 아이템을 설정
     EngineData::mapGrid[1][3] = 2; // (1, 2) 위치에 아이템을 설정
     EngineData::mapGrid[9][10] = 2; // (1, 2) 위치에 아이템을 설정
+
+    EngineData::mapGrid[9][6] = 3; // (1, 2) 위치에 아이템을 설정
+    EngineData::mapGrid[3][22] = 3; // (1, 2) 위치에 아이템을 설정
 }
 void Engine_DrawMap::drawMap(HDC hMemDC)
 {
@@ -82,37 +85,53 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
                 SelectObject(hMemDC, oldBrush); // 이전 브러시로 복원
                 DeleteObject(itemBrush);
             }
+            else if (EngineData::mapGrid[i][j] == 3) // 장애물
+            {
+                HPEN hNullPen = (HPEN)GetStockObject(NULL_PEN); // 투명한 펜 생성
+                HPEN hOldPen = (HPEN)SelectObject(hMemDC, hNullPen); // 이전 펜 저장
+                // 아이템을 초록색 원으로 표시
+                HBRUSH itemBrush = CreateSolidBrush(RGB(255, 0, 0)); // 초록색
+                HBRUSH oldBrush = (HBRUSH)SelectObject(hMemDC, itemBrush);
+
+                Rectangle(hMemDC, cellRect.left, cellRect.top, cellRect.right, cellRect.bottom);
+                // 이전 펜 복원
+                SelectObject(hMemDC, hOldPen);
+
+                SelectObject(hMemDC, oldBrush); // 이전 브러시로 복원
+                DeleteObject(itemBrush);
+            }
             else
             {
+                if (EngineData::developMode)
+                {
+                    // 빈 공간이나 다른 값은 선으로만 격자 그리기
+                    HPEN gridPen = CreatePen(PS_SOLID, 1, RGB(200, 200, 200)); // 회색 선
+                    HPEN oldPen = (HPEN)SelectObject(hMemDC, gridPen);
+
+                    // 상단 선
+                    MoveToEx(hMemDC, cellRect.left, cellRect.top, NULL);
+                    LineTo(hMemDC, cellRect.right, cellRect.top);
+
+                    // 하단 선
+                    MoveToEx(hMemDC, cellRect.left, cellRect.bottom, NULL);
+                    LineTo(hMemDC, cellRect.right, cellRect.bottom);
+
+                    // 왼쪽 선
+                    MoveToEx(hMemDC, cellRect.left, cellRect.top, NULL);
+                    LineTo(hMemDC, cellRect.left, cellRect.bottom);
+
+                    // 오른쪽 선
+                    MoveToEx(hMemDC, cellRect.right, cellRect.top, NULL);
+                    LineTo(hMemDC, cellRect.right, cellRect.bottom);
+
+                    SelectObject(hMemDC, oldPen); // 이전 펜으로 복원
+                    DeleteObject(gridPen);
+                }
                 
-                // 빈 공간이나 다른 값은 선으로만 격자 그리기
-                HPEN gridPen = CreatePen(PS_SOLID, 1, RGB(200, 200, 200)); // 회색 선
-                HPEN oldPen = (HPEN)SelectObject(hMemDC, gridPen);
-
-                // 상단 선
-                MoveToEx(hMemDC, cellRect.left, cellRect.top, NULL);
-                LineTo(hMemDC, cellRect.right, cellRect.top);
-
-                // 하단 선
-                MoveToEx(hMemDC, cellRect.left, cellRect.bottom, NULL);
-                LineTo(hMemDC, cellRect.right, cellRect.bottom);
-
-                // 왼쪽 선
-                MoveToEx(hMemDC, cellRect.left, cellRect.top, NULL);
-                LineTo(hMemDC, cellRect.left, cellRect.bottom);
-
-                // 오른쪽 선
-                MoveToEx(hMemDC, cellRect.right, cellRect.top, NULL);
-                LineTo(hMemDC, cellRect.right, cellRect.bottom);
-
-                SelectObject(hMemDC, oldPen); // 이전 펜으로 복원
-                DeleteObject(gridPen);
                 
             }
         }
     }
-
-    WCHAR buffer[50];
     HPEN hNullPen = (HPEN)GetStockObject(NULL_PEN); // 투명한 펜 생성
     HPEN hOldPen = (HPEN)SelectObject(hMemDC, hNullPen); // 이전 펜 저장
 
@@ -122,54 +141,63 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
     // 이전 펜 복원
     SelectObject(hMemDC, hOldPen);
 
-    /// 각 RECT 격자별 인덱스 표시
-    for (int i = 0; i < GRID_ROWS; i++) {
-        swprintf_s(buffer, 50, L"%d", i);
-        TextOut(hMemDC, 20, 70 + i * EngineData::mapOffset, buffer, wcslen(buffer));
-    }
+    if (EngineData::developMode)
+    {
+        WCHAR buffer[50];
+       
+        /// 각 RECT 격자별 인덱스 표시
+        for (int i = 0; i < GRID_ROWS; i++) {
+            swprintf_s(buffer, 50, L"%d", i);
+            TextOut(hMemDC, 20, 70 + i * EngineData::mapOffset, buffer, wcslen(buffer));
+        }
 
-    for (int i = 0; i < GRID_COLS; i++) {
-        swprintf_s(buffer, 50, L"%d", i);
-        TextOut(hMemDC, 70 + i * EngineData::mapOffset, 20, buffer, wcslen(buffer));
+        for (int i = 0; i < GRID_COLS; i++) {
+            swprintf_s(buffer, 50, L"%d", i);
+            TextOut(hMemDC, 70 + i * EngineData::mapOffset, 20, buffer, wcslen(buffer));
+        }
     }
+   
 }
 
 void Engine_DrawMap::drawInfo(HDC hMemDC, int mouse_X, int mouse_Y)
 {
-    WCHAR buffer[50];
+    if (EngineData::developMode) {
+        WCHAR buffer[50];
 
-    /// 현재 가속도
-    swprintf_s(buffer, 50, L"현재 중력가속도 : %.2f", EngineData::gravityVelocity);
-    TextOut(hMemDC, 10, 780, buffer, wcslen(buffer));
+        /// 현재 가속도
+        swprintf_s(buffer, 50, L"현재 중력가속도 : %.2f", EngineData::gravityVelocity);
+        TextOut(hMemDC, 10, 780, buffer, wcslen(buffer));
 
-    swprintf_s(buffer, 50, L"현재 이동가속도 : %.2f", EngineData::playerSpeed);
-    TextOut(hMemDC, 10, 810, buffer, wcslen(buffer));
+        swprintf_s(buffer, 50, L"현재 이동가속도 : %.2f", EngineData::playerSpeed);
+        TextOut(hMemDC, 10, 810, buffer, wcslen(buffer));
 
-    // 현 마우스 좌표
-    swprintf_s(buffer, 50, L"현재 X 좌표 : %d", (EngineData::userBox.left + EngineData::userBox.right) / 2);
-    TextOut(hMemDC, 200, 780, buffer, wcslen(buffer));
+        // 현 마우스 좌표
+        swprintf_s(buffer, 50, L"현재 X 좌표 : %d", (EngineData::userBox.left + EngineData::userBox.right) / 2);
+        TextOut(hMemDC, 200, 780, buffer, wcslen(buffer));
 
-    swprintf_s(buffer, 50, L"현재 Y 좌표 : %d", (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
-    TextOut(hMemDC, 200, 810, buffer, wcslen(buffer));
+        swprintf_s(buffer, 50, L"현재 Y 좌표 : %d", (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
+        TextOut(hMemDC, 200, 810, buffer, wcslen(buffer));
 
-       // 파란색 펜 생성
-    HPEN hBluePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255)); // 파란색
-    HPEN hOldPen = (HPEN)SelectObject(hMemDC, hBluePen); // 이전 펜 저장
+        // 파란색 펜 생성
+        HPEN hBluePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255)); // 파란색
+        HPEN hOldPen = (HPEN)SelectObject(hMemDC, hBluePen); // 이전 펜 저장
 
-    // 첫 번째 선 그리기 (파란색)
-    MoveToEx(hMemDC, 50, (EngineData::userBox.top + EngineData::userBox.bottom) / 2, NULL);
-    LineTo(hMemDC, (EngineData::userBox.left + EngineData::userBox.right) / 2, (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
+        // 첫 번째 선 그리기 (파란색)
+        MoveToEx(hMemDC, 50, (EngineData::userBox.top + EngineData::userBox.bottom) / 2, NULL);
+        LineTo(hMemDC, (EngineData::userBox.left + EngineData::userBox.right) / 2, (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
 
-    // 빨간색 펜 생성
-    HPEN hRedPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0)); // 빨간색
-    SelectObject(hMemDC, hRedPen); // 빨간색 펜으로 변경
+        // 빨간색 펜 생성
+        HPEN hRedPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0)); // 빨간색
+        SelectObject(hMemDC, hRedPen); // 빨간색 펜으로 변경
 
-    // 두 번째 선 그리기 (빨간색)
-    MoveToEx(hMemDC, (EngineData::userBox.left + EngineData::userBox.right) / 2, 50, NULL);
-    LineTo(hMemDC, (EngineData::userBox.left + EngineData::userBox.right) / 2, (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
+        // 두 번째 선 그리기 (빨간색)
+        MoveToEx(hMemDC, (EngineData::userBox.left + EngineData::userBox.right) / 2, 50, NULL);
+        LineTo(hMemDC, (EngineData::userBox.left + EngineData::userBox.right) / 2, (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
 
-    // 이전 펜 복원 및 생성한 펜 삭제
-    SelectObject(hMemDC, hOldPen); 
-    DeleteObject(hBluePen);
-    DeleteObject(hRedPen); 
+        // 이전 펜 복원 및 생성한 펜 삭제
+        SelectObject(hMemDC, hOldPen);
+        DeleteObject(hBluePen);
+        DeleteObject(hRedPen);
+    }
+   
 }

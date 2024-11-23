@@ -43,6 +43,10 @@
 
 #define IDB_BACKGROUND2  102
 
+#define IDI_PLAYBUTTON  201
+#define IDI_EXITBUTTON  202
+#define IDI_DEVELOPBUTTON 203
+
 #endif
 // 다음은 새 개체에 사용할 기본값입니다.
 //

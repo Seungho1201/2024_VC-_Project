@@ -130,6 +130,7 @@
     <ClInclude Include="Engine_Acceleration.h" />
     <ClInclude Include="Engine_Data.h" />
     <ClInclude Include="Engine_DrawMap.h" />
+    <ClInclude Include="Engine_MakeButton.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -139,6 +140,7 @@
     <ClCompile Include="Engine_Acceleration.cpp" />
     <ClCompile Include="Engine_Data.cpp" />
     <ClCompile Include="Engine_DrawMap.cpp" />
+    <ClCompile Include="Engine_MakeButton.cpp" />
     <ClCompile Include="VCpp_Project.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +149,9 @@
   <ItemGroup>
     <Image Include="..\image\BACK_TEST.bmp" />
     <Image Include="..\image\BACK_TEST2.bmp" />
+    <Image Include="..\image\Develop_Icon.ico" />
+    <Image Include="..\image\Exit_Icon.ico" />
+    <Image Include="..\image\Play_Button.ico" />
     <Image Include="small.ico" />
     <Image Include="VCpp_Project.ico" />
   </ItemGroup>

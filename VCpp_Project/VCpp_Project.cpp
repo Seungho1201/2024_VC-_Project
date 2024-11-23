@@ -198,34 +198,49 @@ bool IsCollidingWithItem(RECT player, int grid[GRID_ROWS][GRID_COLS], int dx, in
     return false; // 충돌 없음
 }
 
+bool IsCollidingWithEnemy(RECT player, int grid[GRID_ROWS][GRID_COLS], int dx, int dy)
+{
+    RECT playerAround = { player.left + dx, player.top + dy, player.right + dx, player.bottom + dy };
+
+    // 플레이어의 위치를 기준으로 검사할 격자 영역 계산
+    int startRow = max(0, (playerAround.top - EngineData::mapOffset) / CELL_HEIGHT);
+    int endRow = min(GRID_ROWS - 1, (playerAround.bottom - EngineData::mapOffset) / CELL_HEIGHT);
+    int startCol = max(0, (playerAround.left - EngineData::mapOffset) / CELL_WIDTH);
+    int endCol = min(GRID_COLS - 1, (playerAround.right - EngineData::mapOffset) / CELL_WIDTH);
+
+    // 지정된 범위 내의 격자만 검사
+    for (int i = startRow; i <= endRow; i++)
+    {
+        for (int j = startCol; j <= endCol; j++)
+        {
+            if (EngineData::mapGrid[i][j] == 3) // 적인 경우
+            {
+                /// 아이템 RECT
+                RECT itemRect = {
+                    j * CELL_WIDTH + EngineData::mapOffset,
+                    i * CELL_HEIGHT + EngineData::mapOffset,
+                    (j + 1) * CELL_WIDTH + EngineData::mapOffset,
+                    (i + 1) * CELL_HEIGHT + EngineData::mapOffset
+                };
+
+                /// 반환용 RECT
+                RECT intersection;
+
+                if (IntersectRect(&intersection, &playerAround, &itemRect))
+                {
+                    return true; // 충돌 발생
+                }
+            }
+        }
+    }
+    return false; // 충돌 없음
+}
 
 // 전역 변수
 int backgroundOffsetX = 0; // 배경 이미지의 X축 오프셋
 const int BACKGROUND_SCROLL_SPEED = 5; // 배경 스크롤 속도
 
-// 캐릭터의 위치에 따라 배경 이미지를 움직이도록 업데이트
-void UpdateBackgroundOffset(int characterX, int windowWidth, int backgroundWidth)
-{
-    int halfWindowWidth = windowWidth / 2;
-
-    // 캐릭터가 화면의 중앙에 도달했을 때 배경 움직이기
-    if (characterX > halfWindowWidth)
-    {
-        // 캐릭터가 오른쪽으로 이동하면 배경은 왼쪽으로 이동
-        backgroundOffsetX = -(characterX - halfWindowWidth);
-
-        // 배경 이미지가 끝까지 가지 않도록 제한
-        if (backgroundOffsetX < -(backgroundWidth - windowWidth))
-            backgroundOffsetX = -(backgroundWidth - windowWidth);
-    }
-    else
-    {
-        // 캐릭터가 왼쪽으로 이동하면 배경을 초기 상태로
-        backgroundOffsetX = 0;
-    }
-}
 // 전역 변수
-RECT a;
 const float BOUNCE_DAMPING = 0.8f; // 바운스 감쇠 계수
 const float GROUND_FRICTION = 0.98f; // 지면 마찰 계수
 bool isJumping = false; // 점프 상태 변수
@@ -234,6 +249,10 @@ bool isBounce = false;
 
 float imageMove = 0;
 RECT clientRect;
+RECT startPoint;
+
+RECT mouseClick;
+RECT a;
 
 float bounceVelocity = 0.0f;  // 바운스 속도
 /// 마우스 좌표 알려고 임시로 만듦
@@ -241,6 +260,16 @@ int mouse_X;
 int mouse_Y;
 
 HBITMAP hBackground; // 배경 이미지 핸들
+RECT playButton = { 500, 500, 600, 600 };
+
+#define PLAYSTART 800
+
+bool playMap1 = false;
+bool keyOn = false;
+
+MakeButton playGameButton(500, 500, 600, 600);
+MakeButton exitButton(1300, 700, 1400, 800);
+MakeButton developButtton(1200, 700, 1300, 800);
 
 // WndProc 함수
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -253,43 +282,84 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
-
-        /// Engine_DrawMap 파일에서 맵과 아이템 구성
-        Engine_DrawMap::settingMap();
-
         /// 중력 타이머 설정
-        SetTimer(hWnd, IDT_GRAVITY_TIMER, 3, NULL);
-
-        hBackground = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_BACKGROUND2), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
-        if (!hBackground)
-            MessageBox(hWnd, L"배경 이미지를 로드할 수 없습니다.", L"에러", MB_OK);
-        GetClientRect(hWnd, &clientRect);
-
-        imageMove = (clientRect.left + clientRect.right) / 2.0;
-
+       
+        //startPoint = EngineData::userBox;
         break;
     }
-    /// 이건 마우스 좌표를 알기 위해 임시 넣음
-    case WM_MOUSEMOVE:
+    case WM_LBUTTONDOWN:
     {
-        mouse_X = LOWORD(lParam);
-        mouse_Y = HIWORD(lParam);
+        HDC hdc = GetDC(hWnd);
 
-        break;
+        int x = LOWORD(lParam);
+        int y = HIWORD(lParam);
+
+        mouseClick.left = x;
+        mouseClick.top = y;
+        mouseClick.right = mouseClick.left + 1;
+        mouseClick.bottom = mouseClick.top + 1;
+
+        if (IntersectRect(&a, &mouseClick, &playGameButton.rectButton))
+        {
+            /// 시작 좌표 저장
+            startPoint = EngineData::userBox;
+
+            /// Engine_DrawMap 파일에서 맵과 아이템 구성
+            Engine_DrawMap::settingMap();
+
+            SetTimer(hWnd, IDT_GRAVITY_TIMER, 2, NULL);
+
+            /// 배경 이미지 로드
+            hBackground = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_BACKGROUND2), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+           
+            if (!hBackground)
+            {
+                MessageBox(hWnd, L"배경 이미지를 로드할 수 없습니다.", L"에러", MB_OK);
+            }
+
+            /// 현재 창의 크기를 받아 이미지 움직임
+            GetClientRect(hWnd, &clientRect);
+            imageMove = (clientRect.left + clientRect.right) / 2.0;
+
+            playMap1 = true;
+            EngineData::developMode = false;
+            playGameButton.setCoordinate(-100, -100, -200, -200);
+        }
+        else if (IntersectRect(&a, &mouseClick, &exitButton.rectButton))
+        {
+            //EngineData::userBox = startPoint;
+            EngineData::userBox = startPoint;
+            playMap1 = false;
+            playGameButton.setCoordinate(500, 500, 600, 600);
+
+        }
+        else if (IntersectRect(&a, &mouseClick, &developButtton.rectButton))
+        {
+            EngineData::developMode = !EngineData::developMode;
+        }
+        
     }
+    break;
     case WM_KEYDOWN:
     {
         switch (wParam)
         {
             case VK_RIGHT:
                 isMovingRight = true;
-                
-                SetTimer(hWnd, IDT_TIMER1, 3, NULL);    /// 이동 타이머
+                if (!keyOn)
+                {
+                    keyOn = true;
+                    SetTimer(hWnd, IDT_TIMER1, 2, NULL);    /// 이동 타이머
+                }
                 break;
 
             case VK_LEFT:
                 isMovingLeft = true;
-                SetTimer(hWnd, IDT_TIMER1, 3, NULL);    /// 이동 타이머
+                if (!keyOn)
+                {
+                    keyOn = true;
+                    SetTimer(hWnd, IDT_TIMER1, 2, NULL);    /// 이동 타이머
+                }
                 break;
 
             case 'C': 
@@ -311,10 +381,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
         case VK_RIGHT:
+            keyOn = false;
             isMovingRight = false;
             break;
 
         case VK_LEFT:
+            keyOn = false;
             isMovingLeft = false;
             break;
 
@@ -348,7 +420,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 
                     if (!(tempPlayerBox.right > clientRect.right - 50))
                     {
-                        imageMove += 0.15;
+                        imageMove += 0.2;
                         EngineData::userBox = tempPlayerBox; // 충돌이 없을 경우에만 이동
                     }
                     break;
@@ -364,53 +436,79 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 {
                     if (!(tempPlayerBox.left < clientRect.left + 50))
                     {
-                        imageMove -= 0.15;
+                        imageMove -= 0.2;
                         EngineData::userBox = tempPlayerBox; // 충돌이 없을 경우에만 이동;
                     }     
                     break;
                 }
             }
+            InvalidateRect(hWnd, NULL, TRUE);
         }
 
+        /// 중력 타이머
         else if (wParam == IDT_GRAVITY_TIMER)
         {
-            // 항상 중력 적용
+            /// 중력값 증가
             EngineData::gravityVelocity += GRAVITY_ACCELERATION;
-
+            EngineData::playerSpeed += 0.01f;
             // 최대 중력 속도 제한
             if (EngineData::gravityVelocity > MAX_GRAVITY_SPEED)
             {
                 EngineData::gravityVelocity = MAX_GRAVITY_SPEED;
             }
+            if (EngineData::playerSpeed > MAX_PLAYER_SPEED)
+            {
+                EngineData::playerSpeed = MAX_PLAYER_SPEED;
+            }
+
 
             float newY = EngineData::userBox.top + EngineData::gravityVelocity;
 
+            /// 중력 타이머에서의 충돌 감지시 바운스 효과 적용
             if (!IsCollidingWithWall(EngineData::userBox, EngineData::mapGrid, 0, EngineData::gravityVelocity))
             {
-                // 아이템 충돌 여부 확인
+                
+                /// 아이템 충돌 여부 확인
                 if (IsCollidingWithItem(EngineData::userBox, EngineData::mapGrid, 0, 0))
                 {
-                    isJumping = false;
-                    EngineData::gravityVelocity = -10; // JUMP_HEIGHT는 위로 튀어오를 속도
-                    isInAir = true; // 공중 상태 설정
+                    EngineData::gravityVelocity = -10; /// JUMP_HEIGHT는 위로 튀어오를 속도
+                    isInAir = true;                    /// 공중 상태 설정
+                    isJumping = false;                 /// 아이템 충돌시 점프 다시 가능
                 }
 
-                // 중력에 따라 이동
+                /// 장애물 충돌 여부 확인
+                if (IsCollidingWithEnemy(EngineData::userBox, EngineData::mapGrid, 0, 0))
+                {
+                    EngineData::userBox.left = startPoint.left;
+                    EngineData::userBox.right = startPoint.right;
+                    EngineData::userBox.top = startPoint.top;
+                    EngineData::userBox.bottom = startPoint.bottom;
+
+                    imageMove = (clientRect.left + clientRect.right) / 2.0;
+
+                    isJumping = false;                 /// 아이템 충돌시 점프 다시 가능
+                }
+
+                /// 중력에 따라 이동
                 EngineData::userBox.top = newY;
                 EngineData::userBox.bottom = EngineData::userBox.top + 30;
-                isInAir = true;
+                
 
+                isInAir = true;
             }
             else
             {
                 /// 바닥에 한번 충돌해야 점프 재사용 가능
                 isJumping = false;
+                EngineData::playerSpeed = BASIC_PLAYER_SPEED;
 
-                // 충돌 발생 시 바운스
+                /// 충돌 발생 시 바운스
                 if (EngineData::gravityVelocity >3.5) 
                 {
+                    /// 탄성 계수는 현 중력에 비례한 속도 유지
                     EngineData::gravityVelocity = -EngineData::gravityVelocity / 1.75;
 
+                    /// 중력이 일정값 이하일 시 기본 중력값 설정
                 } else {
                     // 매우 낮은 속도일 때 정지
                     EngineData::gravityVelocity = 2;
@@ -418,11 +516,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
             }
 
-            // 지면에 있을 때 마찰 적용
-            if (!isInAir)
-            {
-                EngineData::gravityVelocity *= GROUND_FRICTION;
-            }
+           
         }
 
         InvalidateRect(hWnd, NULL, TRUE);
@@ -474,44 +568,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // 메모리 DC 초기화
         FillRect(hMemDC, &clientRect, (HBRUSH)(COLOR_WINDOW + 1));
 
-        // 캐릭터 위치에 따라 배경 오프셋 업데이트
-        UpdateBackgroundOffset(EngineData::userBox.left, width, 600); // 600은 배경 이미지 너비
-
-       
-        // 배경 이미지 출력
-        if (hBackground)
+        if (playMap1)
         {
-            HDC hBackgroundDC = CreateCompatibleDC(hdc);
-            SelectObject(hBackgroundDC, hBackground);
-            // 원본 비트맵 크기
-            BITMAP bmp;
-            GetObject(hBackground, sizeof(BITMAP), &bmp);
+            // 배경 이미지 출력
+            if (hBackground)
+            {
+                HDC hBackgroundDC = CreateCompatibleDC(hdc);
+                SelectObject(hBackgroundDC, hBackground);
+                // 원본 비트맵 크기
+                BITMAP bmp;
+                GetObject(hBackground, sizeof(BITMAP), &bmp);
 
-            /**/
-            StretchBlt(
-                hMemDC,                         // 출력할 DC
-                imageMove - 730, 50,                         // 출력 시작 위치
-                1400, 650,                       // 출력할 너비와 높이
-                hBackgroundDC,                  // 원본 비트맵 DC
-                0, 0,                           // 원본 비트맵의 시작 위치
-                bmp.bmWidth, bmp.bmHeight,      // 원본 비트맵의 너비와 높이
-                SRCCOPY                         // 복사 방식
-            );
-            // 이미지 크기에 맞게 출력
-           // BitBlt(hMemDC, 50, 50, 1300, 600, hBackgroundDC, 0, 0, SRCCOPY);
+                StretchBlt(
+                    hMemDC,                         // 출력할 DC
+                    imageMove - 730, 50,            // 출력 시작 위치
+                    1400, 650,                      // 출력할 너비와 높이
+                    hBackgroundDC,                  // 원본 비트맵 DC
+                    0, 0,                           // 원본 비트맵의 시작 위치
+                    bmp.bmWidth, bmp.bmHeight,      // 원본 비트맵의 너비와 높이
+                    SRCCOPY                         // 복사 방식
+                );
+                DeleteDC(hBackgroundDC);
 
-            DeleteDC(hBackgroundDC);
+                /// 맵 그리기
+                Engine_DrawMap::drawMap(hMemDC);
+
+                // 플레이어 그리기
+                Ellipse(hMemDC, EngineData::userBox.left, EngineData::userBox.top, EngineData::userBox.right, EngineData::userBox.bottom);
+
+                // 중력 속도 표시
+                Engine_DrawMap::drawInfo(hMemDC, mouse_X, mouse_Y);
+
+                /// 나가기 버튼
+                exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
+                developButtton.drawRectButton(hMemDC, IDI_DEVELOPBUTTON);
+            }
         }
 
-        // 여기에 추가적인 그리기 코드 작성
-        Engine_DrawMap::drawMap(hMemDC);
-
-
-        // 플레이어 그리기
-        Ellipse(hMemDC, EngineData::userBox.left, EngineData::userBox.top, EngineData::userBox.right, EngineData::userBox.bottom);
-
-        // 중력 속도 표시
-        Engine_DrawMap::drawInfo(hMemDC, mouse_X, mouse_Y);
+        playGameButton.drawRectButton(hMemDC, IDI_PLAYBUTTON);
 
         // 더블 버퍼링된 내용을 화면에 출력
         BitBlt(hdc, 0, 0, width, height, hMemDC, 0, 0, SRCCOPY);

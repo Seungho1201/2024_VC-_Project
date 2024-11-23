@@ -13,6 +13,7 @@ public:
     static float gravityVelocity;               // 중력 값
 
     static RECT userBox;                        // 플레이어 RECT
-
+    static HWND playButton;
+    static bool developMode;
 
 };

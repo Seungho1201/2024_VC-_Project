@@ -7,4 +7,6 @@ float EngineData::gravityVelocity = GRAVITY_SPEED;
 
 int EngineData::mapOffset = 50;
 
-RECT EngineData::userBox = { 100, 100, 130, 130 };
+RECT EngineData::userBox = { 60, 600, 90, 630 };
+HWND EngineData::playButton = nullptr;
+bool EngineData::developMode = false;
