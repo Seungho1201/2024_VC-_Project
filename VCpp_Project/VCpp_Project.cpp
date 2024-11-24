@@ -286,7 +286,8 @@ RECT mouseClick;            /// 클릭한 위치 저장하는 RECT
 RECT a;                     /// 그냥 반환용 RECT
 
 HBITMAP hBackground;        /// 배경 이미지 핸들
-
+HFONT hFontText;            /// 메인 화면 텍스트
+HFONT hOldFont;
 
 bool playMap1 = false;      /// 맵 출력 여부 변수
 bool keyOn = false;         /// 키 입력 관련 변수
@@ -295,9 +296,9 @@ bool isMovingRight = false;
 bool isMovingLeft = false;
 
 /// 메인 화면 버튼
-MakeButton playGameButton(500, 500, 600, 600);
-MakeButton guideButton(650, 500, 750, 600);
-MakeButton mainExitButton(800, 500, 950, 600);
+MakeButton playGameButton(425, 500, 525, 600);
+MakeButton guideButton(675, 500, 775, 600);
+MakeButton mainExitButton(925, 500, 1250, 600);
 
 /// 플레이 화면 내 버튼
 MakeButton exitButton(1300, 725, 1400, 825);
@@ -619,6 +620,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // 메모리 DC 초기화
         FillRect(hMemDC, &clientRect, (HBRUSH)(COLOR_WINDOW + 1));
 
+
+        /// 메인화면 구성
+        hFontText = CreateFont(
+            175,                  // 글꼴 크기
+            0, 0, 0,             // 너비와 각도 (0은 자동 설정)
+            FW_BOLD,             // 굵게 설정
+            FALSE, FALSE, FALSE, // 기울임, 밑줄, 취소선 여부
+            DEFAULT_CHARSET,     // 문자 집합
+            OUT_DEFAULT_PRECIS,
+            CLIP_DEFAULT_PRECIS,
+            DEFAULT_QUALITY,
+            DEFAULT_PITCH | FF_SWISS,
+            L"Arial");           // 글꼴 이름
+
+        hOldFont = (HFONT)SelectObject(hMemDC, hFontText);
+
+        LPCWSTR text = L"The BOUNCE";
+        TextOut(hMemDC, 225, 100, text, wcslen(text));
+
+
+        SelectObject(hMemDC, hOldFont);
+        DeleteObject(hFontText);
+
+        MoveToEx(hMemDC, 600, 450, NULL);
+        LineTo(hMemDC, 600, 650);
+
+        MoveToEx(hMemDC, 850, 450, NULL);
+        LineTo(hMemDC, 850, 650);
+
         /// 메인 화면 버튼 그리기
         playGameButton.drawRectButton(hMemDC, IDI_PLAYBUTTON);
         guideButton.drawRectButton(hMemDC, IDI_GUIDEBUTTON);
@@ -647,18 +677,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 );
                 DeleteDC(hBackgroundDC);
             }
-                /// 맵 그리기
-                Engine_DrawMap::drawMap(hMemDC);
 
-                // 플레이어 그리기
-                Ellipse(hMemDC, EngineData::userBox.left, EngineData::userBox.top, EngineData::userBox.right, EngineData::userBox.bottom);
+            /// 맵 그리기
+            Engine_DrawMap::drawMap(hMemDC);
 
-                // 중력 속도 표시
-                Engine_DrawMap::drawInfo(hMemDC);
+            /// 플레이어 그리기
+            Ellipse(hMemDC, EngineData::userBox.left, EngineData::userBox.top, EngineData::userBox.right, EngineData::userBox.bottom);
 
-                /// 플레이 화면 내 버튼
-                exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
-                developButtton.drawRectButton(hMemDC, IDI_DEVELOPBUTTON);
+            /// 중력 속도 표시
+            Engine_DrawMap::drawInfo(hMemDC);
+
+            /// 플레이 화면 내 버튼
+            exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
+            developButtton.drawRectButton(hMemDC, IDI_DEVELOPBUTTON);
         }
 
         /// 더블 버퍼링된 내용을 화면에 출력
