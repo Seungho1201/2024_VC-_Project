@@ -387,14 +387,8 @@ void Engine_DrawMap::drawInfo(HDC hMemDC)
 void Engine_DrawMap::drawHeart(HDC hMemDC)
 {
     int i = 0;
-    static HICON hIconEmptyHeart = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EMPTYHEARTICON),IMAGE_ICON,50,50,0);
-    static HICON hIconHeart = (HICON)LoadImage(GetModuleHandle(NULL),
-        MAKEINTRESOURCE(IDI_HEARTICON),
-        IMAGE_ICON,
-        50,
-        50,
-        0
-    );
+    static HICON hIconEmptyHeart = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EMPTYHEARTICON),IMAGE_ICON, 50, 50, 0);
+    static HICON hIconHeart = (HICON)LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_HEARTICON), IMAGE_ICON, 50, 50, 0 );
 
     for (int y = EngineData::playerHeart; y < 3; y++)
     {

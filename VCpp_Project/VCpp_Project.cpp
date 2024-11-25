@@ -517,7 +517,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             /// 임시 RECT 선언
             RECT tempUserBox = EngineData::userBox;
-            
 
             /// 방향키 이동
             if (isMovingRight)  /// 우측 방향키 이동
@@ -539,8 +538,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 else
                 {
-                    
-                    if (EngineData::gravityVelocity < 0) { break; }
+                    /// 하강 중일때만 벽 마찰 이용 가능하게 제한 
+                    /// 중력 값이 양수일때만 허용
+                    if (EngineData::gravityVelocity < 0) { 
+                        break; 
+                    }
+
                     EngineData::gravityVelocity = GRAVITY_SPEED - 1.5;
 
 
@@ -549,8 +552,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     /// 스파크 아이콘을 그려보았더니 스파크랑 비슷하게 구현은 됩니다..
 
                     HDC hdc = GetDC(hWnd);
-
-                    
 
                     /// 아이콘 그리기
                     DrawIconEx(hdc,
