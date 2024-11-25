@@ -215,12 +215,12 @@ bool IsCollidingWithEnemy(RECT player, int grid[GRID_ROWS][GRID_COLS], int dx, i
         {
             if (EngineData::mapGrid[i][j] == 3) // 적인 경우
             {
-                /// 아이템 RECT
+                /// 판정 완화
                 RECT itemRect = {
-                    j * CELL_WIDTH + EngineData::mapOffset,
-                    i * CELL_HEIGHT + EngineData::mapOffset,
-                    (j + 1) * CELL_WIDTH + EngineData::mapOffset,
-                    (i + 1) * CELL_HEIGHT + EngineData::mapOffset
+                    j * CELL_WIDTH + EngineData::mapOffset + 5,
+                    i * CELL_HEIGHT + EngineData::mapOffset + 5,
+                    (j + 1) * CELL_WIDTH + EngineData::mapOffset - 5,
+                    (i + 1) * CELL_HEIGHT + EngineData::mapOffset - 5
                 };
 
                 /// 반환용 RECT
@@ -363,6 +363,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             EngineData::hIconClear = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EXITBRICK),  IMAGE_ICON,  50, 50, 0 );
 
+            effectIcon = (HICON)LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_SPARKICON),IMAGE_ICON, 32, 32, 0);
             /// 로드 실패시 메세지 출력
             if (!EngineData::hBackground)
             {
@@ -402,6 +403,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EngineData::hIconEnemy = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_TRAPBRICK), IMAGE_ICON, 50, 50, 0);
 
             EngineData::hIconClear = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EXITBRICK), IMAGE_ICON, 50, 50, 0);
+
 
             if (!guideImg)
             {
@@ -455,7 +457,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (!keyOn)             /// 누르는 동안 타이머 무한 생성 방지
                 {           
                     keyOn = true;
-                    SetTimer(hWnd, IDT_TIMER1, 2, NULL);    /// 이동 타이머
+                    SetTimer(hWnd, IDT_TIMER1, 4, NULL);    /// 이동 타이머
                 }
                 break;
 
@@ -466,7 +468,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (!keyOn)             /// 누르는 동안 타이머 무한 생성 방지
                 {
                     keyOn = true;
-                    SetTimer(hWnd, IDT_TIMER1, 2, NULL);    /// 이동 타이머
+                    SetTimer(hWnd, IDT_TIMER1, 4, NULL);    /// 이동 타이머
                 }
                 break;
 
@@ -541,12 +543,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     if (EngineData::gravityVelocity < 0) { break; }
                     EngineData::gravityVelocity = GRAVITY_SPEED - 1.5;
 
+
+                    /// 교수님... 스파크 gif가 구현이 안되길래
+                    /// 더블 버퍼링이 아닌 hdc는 깜빡이던 플리커링 효과를 이용해서
+                    /// 스파크 아이콘을 그려보았더니 스파크랑 비슷하게 구현은 됩니다..
+
                     HDC hdc = GetDC(hWnd);
 
-                    effectIcon = (HICON)LoadImage(
-                        GetModuleHandle(NULL),
-                        MAKEINTRESOURCE(IDI_SPARKICON), 
-                        IMAGE_ICON,  32, 32, 0);
+                    
 
                     /// 아이콘 그리기
                     DrawIconEx(hdc,
@@ -555,7 +559,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         effectIcon, 32, 32, 0, NULL, DI_NORMAL);
 
                     /// 아이콘 자원 해제
-                    DestroyIcon(effectIcon);
+                    //DestroyIcon(effectIcon);
                 }
             }
             if (isMovingLeft)   /// 좌측 방향키 이동 
@@ -579,14 +583,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 {
                     if (EngineData::gravityVelocity < 0) { break; }
                     EngineData::gravityVelocity = GRAVITY_SPEED - 1.5;
-
+                    
                     HDC hdc = GetDC(hWnd);
 
+                    
+                    /*
                     effectIcon = (HICON)LoadImage(
                         GetModuleHandle(NULL),
                         MAKEINTRESOURCE(IDI_SPARKICON),
                         IMAGE_ICON, 32, 32, 0);
-
+                        */
                     /// 아이콘 그리기
                     DrawIconEx(hdc,
                         EngineData::userBox.left - 16,
@@ -594,7 +600,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         effectIcon, 32, 32, 0, NULL, DI_NORMAL);
 
                     /// 아이콘 자원 해제
-                    DestroyIcon(effectIcon);
+                    //DestroyIcon(effectIcon);
                 }
             }
             InvalidateRect(hWnd, NULL, TRUE);   /// 이동할 때마다 화면 무효화 발생시켜 바로 갱신
@@ -825,46 +831,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             /// 플레이 화면 내 버튼
             exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
             developButtton.drawRectButton(hMemDC, IDI_DEVELOPBUTTON);
-
         }
 
         if (guide)
         {
-            Rectangle(hMemDC, 0, 0, 1500, 900);
-
-            WCHAR buffer[50];
-
-            /// 벽 아이콘 그리기
-            DrawIconEx(hMemDC, 150, 50, EngineData::hIcon, 50, 50, 0, NULL, DI_NORMAL);
-
-            /// 게임 정보
-            swprintf_s(buffer, 50, L"벽 : 통과할 수 없는 장애물입니다");
-            TextOut(hMemDC, 250, 70, buffer, wcslen(buffer));
-
-
-            /// 아이템 아이콘 그리기
-            DrawIconEx(hMemDC, 150, 150, EngineData::hIconItem, 50, 50, 0, NULL, DI_NORMAL);
-
-
-            swprintf_s(buffer, 50, L"점프대 : 높이 점프를 시켜주는 아이템입니다.");
-            TextOut(hMemDC, 250, 170, buffer, wcslen(buffer));
-
-            /// 장애물 아이콘 그리기
-            DrawIconEx(hMemDC, 150, 250, EngineData::hIconEnemy, 50, 50, 0, NULL, DI_NORMAL);
-
-            swprintf_s(buffer, 50, L"장애물 : 부딪히면 생명력이 줄어들며 초기 위치로 돌아갑니다.");
-            TextOut(hMemDC, 250, 270, buffer, wcslen(buffer));
-
-            /// 클리어 아이콘 그리기
-            DrawIconEx(hMemDC, 150, 350, EngineData::hIconClear, 50, 50, 0, NULL, DI_NORMAL);
-
-            swprintf_s(buffer, 50, L"클리어 : 이 지점에 도달 시 게임은 클리어 됩니다.");
-            TextOut(hMemDC, 250, 370, buffer, wcslen(buffer));
-
-            MoveToEx(hMemDC, 800, 50, NULL);
-            LineTo(hMemDC, 800, 800);
-
-            /// 배경 이미지 출력
+            /// 가이드 이미지 출력
             if (guideImg)
             {
                 HDC hBackgroundDC = CreateCompatibleDC(hdc);
@@ -884,18 +855,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 );
                 DeleteDC(hBackgroundDC);
             }
-
-            swprintf_s(buffer, 50, L"하강 시 벽과 접촉한 방향으로 방향키 입력 시");
-            TextOut(hMemDC, 930, 500, buffer, wcslen(buffer));
-
-            swprintf_s(buffer, 50, L"이펙트와 함께 천천히 하강합니다");
-            TextOut(hMemDC, 930, 530, buffer, wcslen(buffer));
+            Engine_DrawMap::drawGuide(hMemDC);
 
             exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
         }
-
-
-
         /// 더블 버퍼링된 내용을 화면에 출력
         BitBlt(hdc, 0, 0, width, height, hMemDC, 0, 0, SRCCOPY);
 

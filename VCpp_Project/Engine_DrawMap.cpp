@@ -387,47 +387,67 @@ void Engine_DrawMap::drawInfo(HDC hMemDC)
 void Engine_DrawMap::drawHeart(HDC hMemDC)
 {
     int i = 0;
+    static HICON hIconEmptyHeart = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EMPTYHEARTICON),IMAGE_ICON,50,50,0);
+    static HICON hIconHeart = (HICON)LoadImage(GetModuleHandle(NULL),
+        MAKEINTRESOURCE(IDI_HEARTICON),
+        IMAGE_ICON,
+        50,
+        50,
+        0
+    );
 
     for (int y = EngineData::playerHeart; y < 3; y++)
     {
-        /// 아이콘 로드
-        HICON hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
-            MAKEINTRESOURCE(IDI_EMPTYHEARTICON),
-            IMAGE_ICON,
-            50,
-            50,
-            0
-        );
-
         /// 아이콘 그리기
-        DrawIconEx(hMemDC,
-            50 + y * 60,
-            720,
-            hIcon, 50, 50, 0, NULL, DI_NORMAL);
-
-        /// 아이콘 자원 해제
-        DestroyIcon(hIcon);
+        DrawIconEx(hMemDC, 50 + y * 60, 720, hIconEmptyHeart,
+            50, 50, 0, NULL, DI_NORMAL);
     }
 
     for (i; i < EngineData::playerHeart; i++)
     {
-        /// 아이콘 로드
-        HICON hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
-            MAKEINTRESOURCE(IDI_HEARTICON),
-            IMAGE_ICON,
-            50,
-            50,
-            0
-        );
-
         /// 아이콘 그리기
-        DrawIconEx(hMemDC,
-           50 + i * 60,
-           720,
-           hIcon, 50, 50, 0, NULL, DI_NORMAL);
-
-        /// 아이콘 자원 해제
-        DestroyIcon(hIcon);
+        DrawIconEx(hMemDC, 50 + i * 60, 720, hIconHeart,
+            50, 50, 0, NULL, DI_NORMAL);
     }
+}
 
+void Engine_DrawMap::drawGuide(HDC hMemDC)
+{
+    Rectangle(hMemDC, 0, 0, 1500, 900);
+
+    WCHAR buffer[50];
+
+    /// 벽 아이콘 그리기
+    DrawIconEx(hMemDC, 150, 50, EngineData::hIcon, 50, 50, 0, NULL, DI_NORMAL);
+
+    /// 게임 정보
+    swprintf_s(buffer, 50, L"벽 : 통과할 수 없는 장애물입니다");
+    TextOut(hMemDC, 250, 70, buffer, wcslen(buffer));
+
+    /// 아이템 아이콘 그리기
+    DrawIconEx(hMemDC, 150, 150, EngineData::hIconItem, 50, 50, 0, NULL, DI_NORMAL);
+
+    swprintf_s(buffer, 50, L"점프대 : 높이 점프를 시켜주는 아이템입니다.");
+    TextOut(hMemDC, 250, 170, buffer, wcslen(buffer));
+
+    /// 장애물 아이콘 그리기
+    DrawIconEx(hMemDC, 150, 250, EngineData::hIconEnemy, 50, 50, 0, NULL, DI_NORMAL);
+
+    swprintf_s(buffer, 50, L"장애물 : 부딪히면 생명력이 줄어들며 초기 위치로 돌아갑니다.");
+    TextOut(hMemDC, 250, 270, buffer, wcslen(buffer));
+
+    /// 클리어 아이콘 그리기
+    DrawIconEx(hMemDC, 150, 350, EngineData::hIconClear, 50, 50, 0, NULL, DI_NORMAL);
+
+    swprintf_s(buffer, 50, L"클리어 : 이 지점에 도달 시 게임은 클리어 됩니다.");
+    TextOut(hMemDC, 250, 370, buffer, wcslen(buffer));
+
+    MoveToEx(hMemDC, 800, 50, NULL);
+    LineTo(hMemDC, 800, 800);
+
+    swprintf_s(buffer, 50, L"하강 시 벽과 접촉한 방향으로 방향키 입력 시");
+    TextOut(hMemDC, 930, 500, buffer, wcslen(buffer));
+
+    swprintf_s(buffer, 50, L"이펙트와 함께 천천히 하강합니다");
+    TextOut(hMemDC, 930, 530, buffer, wcslen(buffer));
 }
