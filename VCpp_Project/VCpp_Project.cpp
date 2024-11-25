@@ -834,8 +834,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             developButtton.drawRectButton(hMemDC, IDI_DEVELOPBUTTON);
         }
 
+        /// 가이드 출력
         if (guide)
         {
+            /// 가이드 구성
+            Engine_DrawMap::drawGuide(hMemDC);
+
             /// 가이드 이미지 출력
             if (guideImg)
             {
@@ -856,8 +860,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 );
                 DeleteDC(hBackgroundDC);
             }
-            Engine_DrawMap::drawGuide(hMemDC);
 
+            /// 나가기 버튼 출력
             exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
         }
         /// 더블 버퍼링된 내용을 화면에 출력
