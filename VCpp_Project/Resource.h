@@ -48,6 +48,12 @@
 #define IDI_DEVELOPBUTTON   203
 #define IDI_GUIDEBUTTON     204
 #define IDI_MAINEXITBUTTON  205
+#define IDI_WALLBRICK       206
+#define IDI_TRAPBRICK       207
+#define IDI_JUMPBRICK       208
+#define IDI_EXITBRICK       209
+#define IDI_EMPTYHEARTICON  210
+#define IDI_HEARTICON       211
 
 #endif
 // 다음은 새 개체에 사용할 기본값입니다.

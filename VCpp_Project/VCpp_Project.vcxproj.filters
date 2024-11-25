@@ -90,5 +90,23 @@
     <Image Include="..\image\MainExit_Icon.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="..\image\Wall_Brick.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\Trap_Brick.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\Jump_Brick.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\Exit_Brick.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\Empty_Heart_Icon.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="..\image\Heart_Icon.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

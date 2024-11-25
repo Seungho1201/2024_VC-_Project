@@ -150,10 +150,16 @@
     <Image Include="..\image\BACK_TEST.bmp" />
     <Image Include="..\image\BACK_TEST2.bmp" />
     <Image Include="..\image\Develop_Icon.ico" />
+    <Image Include="..\image\Empty_Heart_Icon.ico" />
+    <Image Include="..\image\Exit_Brick.ico" />
     <Image Include="..\image\Exit_Icon.ico" />
     <Image Include="..\image\Guide_Icon.ico" />
+    <Image Include="..\image\Heart_Icon.ico" />
+    <Image Include="..\image\Jump_Brick.ico" />
     <Image Include="..\image\MainExit_Icon.ico" />
     <Image Include="..\image\Play_Button.ico" />
+    <Image Include="..\image\Trap_Brick.ico" />
+    <Image Include="..\image\Wall_Brick.ico" />
     <Image Include="small.ico" />
     <Image Include="VCpp_Project.ico" />
   </ItemGroup>

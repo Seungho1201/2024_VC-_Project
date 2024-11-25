@@ -11,4 +11,6 @@ public:
    static void drawMap(HDC hMemDC);
 
    static void drawInfo(HDC hMemDC);
+
+   static void drawHeart(HDC hMemDC);
 };

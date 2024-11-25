@@ -311,6 +311,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
+       
+
         /// 창 생성시 창 크기를 받아옴
         GetClientRect(hWnd, &clientRect);
         break;
@@ -340,17 +342,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             /// 중력 타이머 설정
             SetTimer(hWnd, IDT_GRAVITY_TIMER, 2, NULL);
 
+            /// 현재 창의 크기를 받아 이미지 움직임
+            imageMove = (clientRect.left + clientRect.right) / 2.0;
+
             /// 배경 이미지 로드
             EngineData::hBackground = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_BACKGROUND2), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
-           
+
             /// 로드 실패시 메세지 출력
             if (!EngineData::hBackground)
             {
                 MessageBox(hWnd, L"배경 이미지를 로드할 수 없습니다.", L"에러", MB_OK);
             }
-
-            /// 현재 창의 크기를 받아 이미지 움직임
-            imageMove = (clientRect.left + clientRect.right) / 2.0;
 
             /// 맵 활성화
             playMap1 = true;
@@ -377,6 +379,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             /// 플레이 버튼 클릭시 저장한 플레이어의 처음 좌표값으로 갱신
             EngineData::userBox = startPoint;
 
+            /// 메인 화면으로 다시갈시 생멸력 기본값으로 초기화
+            EngineData::playerHeart = 3;
+
             /// 맵 표시 false
             playMap1 = false;
         }
@@ -398,10 +403,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             case VK_RIGHT:
                 isMovingRight = true;   /// 우측 이동 변수 true
+                RECT tempUserBox = EngineData::userBox;
                 if (!keyOn)             /// 누르는 동안 타이머 무한 생성 방지
                 {
+                    /// 임시 RECT에 플레이어 이동 방향 좌표 적용
+                    tempUserBox.left += EngineData::playerSpeed;
+                    tempUserBox.right += EngineData::playerSpeed;
+
+                    if (IsCollidingWithWall(tempUserBox, EngineData::mapGrid, 0, 0))
+                    {
+                        break;
+                    }
+                    
                     keyOn = true;
-                    SetTimer(hWnd, IDT_TIMER1, 2, NULL);    /// 이동 타이머
+                    SetTimer(hWnd, IDT_TIMER1, 1, NULL);    /// 이동 타이머
                 }
                 break;
 
@@ -410,7 +425,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (!keyOn)             /// 누르는 동안 타이머 무한 생성 방지
                 {
                     keyOn = true;
-                    SetTimer(hWnd, IDT_TIMER1, 2, NULL);    /// 이동 타이머
+                    SetTimer(hWnd, IDT_TIMER1, 1, NULL);    /// 이동 타이머
                 }
                 break;
 
@@ -458,6 +473,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             /// 임시 RECT 선언
             RECT tempUserBox = EngineData::userBox;
+
 
             /// 방향키 이동
             if (isMovingRight)  /// 우측 방향키 이동
@@ -518,40 +534,63 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 EngineData::playerSpeed = MAX_PLAYER_SPEED;
             }    
 
+            /// 아이템 충돌 여부 확인
+            if (IsCollidingWithItem(EngineData::userBox, EngineData::mapGrid, 0, 0))
+            {
+                EngineData::gravityVelocity = -10; /// JUMP_HEIGHT는 위로 튀어오를 속도
+                isJumping = false;                 /// 아이템 충돌시 점프 다시 가능
+            }
+
+            /// 장애물 충돌 여부 확인
+            else if (IsCollidingWithEnemy(EngineData::userBox, EngineData::mapGrid, 0, 0))
+            {
+                /// 장애물 충돌시 원래 시작지점으로 이동
+                EngineData::userBox = startPoint;
+
+                /// 생명력 마이너스
+                EngineData::playerHeart -= 1;
+
+                /// 생명력이 0일시 게임 종료
+                if (EngineData::playerHeart == 0)
+                {
+                    MessageBox(hWnd, L"사망하셧습니다", L"게임 오버", MB_OK);
+                    DestroyWindow(hWnd);
+                }
+
+                /// 배경 이미지 위치도 원래대로 복귀
+                imageMove = (clientRect.left + clientRect.right) / 2.0;
+            }
+
+            /// 장애물 충돌 여부 확인
+            else if (IsCollidingWithClear(EngineData::userBox, EngineData::mapGrid, 0, 0))
+            {
+                /// 타이머 전부 종료
+                KillTimer(hWnd, IDT_GRAVITY_TIMER);
+                KillTimer(hWnd, IDT_TIMER1);
+
+                /// 메세지 출력
+                MessageBox(hWnd, L"클리어", L"클리어", MB_OK);
+            }
+
+
             /// 중력 타이머에서의 충돌 X일 시
             if (!IsCollidingWithWall(EngineData::userBox, EngineData::mapGrid, 0, EngineData::gravityVelocity))
             {
-                /// 아이템 충돌 여부 확인
-                if (IsCollidingWithItem(EngineData::userBox, EngineData::mapGrid, 0, 0))
+                RECT tempUserBox = EngineData::userBox;
+
+                tempUserBox.top += EngineData::gravityVelocity;
+                tempUserBox.bottom = tempUserBox.top + 30;
+
+                if (tempUserBox.top > 50)
                 {
-                    EngineData::gravityVelocity = -10; /// JUMP_HEIGHT는 위로 튀어오를 속도
-                    isJumping = false;                 /// 아이템 충돌시 점프 다시 가능
+                    /// 모든 오브젝트와 충돌 없을 시 중력값 만큼 userBox 위치 갱신
+                    EngineData::userBox.top = tempUserBox.top;
+                    EngineData::userBox.bottom = EngineData::userBox.top + 30;
                 }
-
-                /// 장애물 충돌 여부 확인
-                else if (IsCollidingWithEnemy(EngineData::userBox, EngineData::mapGrid, 0, 0))
+                else 
                 {
-                    /// 장애물 충돌시 원래 시작지점으로 이동
-                    EngineData::userBox = startPoint;
-
-                    /// 배경 이미지 위치도 원래대로 복귀
-                    imageMove = (clientRect.left + clientRect.right) / 2.0;
+                    EngineData::gravityVelocity = GRAVITY_SPEED;
                 }
-
-                /// 장애물 충돌 여부 확인
-                else if (IsCollidingWithClear(EngineData::userBox, EngineData::mapGrid, 0, 0))
-                {
-                    /// 타이머 전부 종료
-                    KillTimer(hWnd, IDT_GRAVITY_TIMER);
-                    KillTimer(hWnd, IDT_TIMER1);
-
-                    /// 메세지 출력
-                    MessageBox(hWnd, L"클리어", L"클리어", MB_OK);             
-                }
-
-                /// 모든 오브젝트와 충돌 없을 시 중력값 만큼 userBox 위치 갱신
-                EngineData::userBox.top   += EngineData::gravityVelocity;
-                EngineData::userBox.bottom = EngineData::userBox.top + 30;
             }
             else    /// 바닥과 충돌했을 때
             {
@@ -686,10 +725,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             /// 중력 속도 표시
             Engine_DrawMap::drawInfo(hMemDC);
+            Engine_DrawMap::drawHeart(hMemDC);
 
             /// 플레이 화면 내 버튼
             exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
             developButtton.drawRectButton(hMemDC, IDI_DEVELOPBUTTON);
+
         }
 
         /// 더블 버퍼링된 내용을 화면에 출력

@@ -19,4 +19,6 @@ public:
     static HBITMAP hBackground;
 
     static float imageMove;
+
+    static int playerHeart;
 };
