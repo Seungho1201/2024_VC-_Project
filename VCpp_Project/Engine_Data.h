@@ -25,4 +25,9 @@ public:
     static DWORD playTimer;
     static double elapsedTime; // 경과 시간
     static bool isStopwatchRunning; // 스톱워치 동작 여부
+
+    static HICON hIcon;
+    static HICON hIconItem;
+    static HICON hIconEnemy;
+    static HICON hIconClear;
 };

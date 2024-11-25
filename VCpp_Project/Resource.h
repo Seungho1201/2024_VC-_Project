@@ -39,9 +39,9 @@
 #define MAX_PLAYER_SPEED        7.5f
 #define BASIC_PLAYER_SPEED      5.0f
 
-#define IDB_BACKGROUND 101
-
-#define IDB_BACKGROUND2  102
+#define IDB_BACKGROUND      101
+#define IDB_BACKGROUND2     102
+#define IDB_SPARKIMG        103
 
 #define IDI_PLAYBUTTON      201
 #define IDI_EXITBUTTON      202

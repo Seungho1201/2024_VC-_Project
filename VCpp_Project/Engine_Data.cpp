@@ -8,6 +8,7 @@ float EngineData::gravityVelocity = GRAVITY_SPEED;
 int EngineData::mapOffset = 50;
 
 RECT EngineData::userBox = { 60, 500, 90, 530 };
+
 HWND EngineData::playButton = nullptr;
 bool EngineData::developMode = false;
 
@@ -18,3 +19,8 @@ int EngineData::playerHeart = 3;
 DWORD EngineData::playTimer = 0;
 double  EngineData::elapsedTime = 0; // 경과 시간
 bool EngineData::isStopwatchRunning = false; // 스톱워치 동작 여부
+
+HICON EngineData::hIcon = nullptr;
+HICON EngineData::hIconItem = nullptr;
+HICON EngineData::hIconEnemy = nullptr;
+HICON EngineData::hIconClear = nullptr;

@@ -124,6 +124,8 @@ void Engine_DrawMap::settingMap()
 
 void Engine_DrawMap::drawMap(HDC hMemDC)
 {
+    static HICON hIcon;
+
 
     for (int i = 0; i < GRID_ROWS; i++)
     {
@@ -144,23 +146,24 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
                 FillRect(hMemDC, &cellRect, wallBrush);
                 DeleteObject(wallBrush);
                 */
+                /*
                 /// 아이콘 로드
-                HICON hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
+                 hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
                     MAKEINTRESOURCE(IDI_WALLBRICK),
                     IMAGE_ICON,
                     50,
                     50,
                     0
                 );
-
+                */
                 /// 아이콘 그리기
                 DrawIconEx(hMemDC,
                     j * CELL_WIDTH + EngineData::mapOffset,
                     i * CELL_HEIGHT + EngineData::mapOffset,
-                    hIcon, 50, 50, 0, NULL, DI_NORMAL);
+                    EngineData::hIcon, 50, 50, 0, NULL, DI_NORMAL);
 
                 /// 아이콘 자원 해제
-                DestroyIcon(hIcon);
+                //DestroyIcon(hIcon);
             }
             else if (EngineData::mapGrid[i][j] == 2) // 아이템
             {
@@ -179,22 +182,23 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
                 DeleteObject(itemBrush);
                 */
 
-                HICON hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
+                /*
+                 hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
                     MAKEINTRESOURCE(IDI_JUMPBRICK),
                     IMAGE_ICON,
                     50,
                     50,
                     0
                 );
-
+                */
                 /// 아이콘 그리기
                 DrawIconEx(hMemDC,
                     j * CELL_WIDTH + EngineData::mapOffset,
                     i * CELL_HEIGHT + EngineData::mapOffset,
-                    hIcon, 50, 50, 0, NULL, DI_NORMAL);
+                    EngineData::hIconItem, 50, 50, 0, NULL, DI_NORMAL);
 
                 /// 아이콘 자원 해제
-                DestroyIcon(hIcon);
+                //DestroyIcon(hIcon);
             }
             else if (EngineData::mapGrid[i][j] == 3) // 장애물
             {
@@ -213,22 +217,23 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
                 DeleteObject(itemBrush);
                 */
                 /// 아이콘 로드
-                HICON hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
+                /*
+                hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
                     MAKEINTRESOURCE(IDI_TRAPBRICK),
                     IMAGE_ICON,
                     50,
                     50,
                     0
                 );
-
+                */
                 /// 아이콘 그리기
                 DrawIconEx(hMemDC,
                     j * CELL_WIDTH + EngineData::mapOffset,
                     i * CELL_HEIGHT + EngineData::mapOffset,
-                    hIcon, 50, 50, 0, NULL, DI_NORMAL);
+                    EngineData::hIconEnemy, 50, 50, 0, NULL, DI_NORMAL);
 
                 /// 아이콘 자원 해제
-                DestroyIcon(hIcon);
+                //DestroyIcon(hIcon);
             }
             else if (EngineData::mapGrid[i][j] == 4) // 클리어 지점
             {
@@ -247,22 +252,24 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
                 DeleteObject(itemBrush);
                 */
                 /// 아이콘 로드
-                HICON hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
+                /*
+                 hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
                     MAKEINTRESOURCE(IDI_EXITBRICK),
                     IMAGE_ICON,
                     50,
                     50,
                     0
                 );
-
+                */
                 /// 아이콘 그리기
+
                 DrawIconEx(hMemDC,
                     j* CELL_WIDTH + EngineData::mapOffset,
                     i* CELL_HEIGHT + EngineData::mapOffset,
-                    hIcon, 50, 50, 0, NULL, DI_NORMAL);
+                    EngineData::hIconClear, 50, 50, 0, NULL, DI_NORMAL);
 
                 /// 아이콘 자원 해제
-                DestroyIcon(hIcon);
+                //DestroyIcon(hIcon);
             }
             else
             {
@@ -291,11 +298,10 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
                     SelectObject(hMemDC, oldPen); // 이전 펜으로 복원
                     DeleteObject(gridPen);
                 }
-                
-                
             }
         }
     }
+
     HPEN hNullPen = (HPEN)GetStockObject(NULL_PEN); // 투명한 펜 생성
     HPEN hOldPen = (HPEN)SelectObject(hMemDC, hNullPen); // 이전 펜 저장
 

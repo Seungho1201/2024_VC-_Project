@@ -291,6 +291,9 @@ HFONT hOldFont;
 HICON effectIcon;
 
 bool playMap1 = false;      /// 맵 출력 여부 변수
+bool guide = false;
+HBITMAP guideImg;        /// 배경 이미지 핸들
+
 bool keyOn = false;         /// 키 입력 관련 변수
 
 bool isMovingRight = false;
@@ -334,6 +337,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (IntersectRect(&a, &mouseClick, &playGameButton.rectButton))
         {
             /// 시작 좌표 저장
+            EngineData::userBox.left = 60;
+            EngineData::userBox.top = 500;
+            EngineData::userBox.right = 90;
+            EngineData::userBox.bottom = 60;
             startPoint = EngineData::userBox;
 
             /// Engine_DrawMap 파일에서 맵과 아이템 구성
@@ -347,6 +354,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             /// 배경 이미지 로드
             EngineData::hBackground = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_BACKGROUND2), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+           
+            EngineData::hIcon = (HICON)LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_WALLBRICK),IMAGE_ICON,50,50,0);
+
+            EngineData::hIconItem = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_JUMPBRICK),IMAGE_ICON,50, 50, 0 );
+
+            EngineData::hIconEnemy = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_TRAPBRICK), IMAGE_ICON, 50, 50, 0 );
+
+            EngineData::hIconClear = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EXITBRICK),  IMAGE_ICON,  50, 50, 0 );
 
             /// 로드 실패시 메세지 출력
             if (!EngineData::hBackground)
@@ -354,29 +369,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 MessageBox(hWnd, L"배경 이미지를 로드할 수 없습니다.", L"에러", MB_OK);
             }
 
-            /// 아이콘 로드
-            effectIcon = (HICON)LoadImage(GetModuleHandle(NULL),
-                MAKEINTRESOURCE(IDI_SPARKICON),
-                IMAGE_ICON,
-                32,
-                32,
-                0
-            );
-
             /// 맵 활성화
             playMap1 = true;
 
             /// 기본값으로 개발자 모드는 false
             EngineData::developMode = false;
 
-            EngineData::playTimer = GetTickCount();
+            EngineData::playTimer = GetTickCount64();
             EngineData::isStopwatchRunning = true;
+
+            /// 메인화면의 버튼 다른곳으로 이동
+            playGameButton.setCoordinate(-500, -500, -500, -500);
+            guideButton.setCoordinate(-500, -500, -500, -500);
+            mainExitButton.setCoordinate(-500, -500, -500, -500);
         }
 
         /// 메인 화면 가이드 버튼
         else if (IntersectRect(&a, &mouseClick, &guideButton.rectButton))
         {
-            MessageBox(hWnd, L"구현 예정", L"PlayGuide", MB_OK);
+            /// 메인화면의 버튼 다른곳으로 이동
+            playGameButton.setCoordinate(-500, -500, -500, -500);
+            guideButton.setCoordinate(-500, -500, -500, -500);
+            mainExitButton.setCoordinate(-500, -500, -500, -500);
+
+            guide = true;
+            guideImg = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_SPARKIMG), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+            
+            EngineData::hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_WALLBRICK), IMAGE_ICON, 50, 50, 0);
+
+            EngineData::hIconItem = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_JUMPBRICK), IMAGE_ICON, 50, 50, 0);
+
+            EngineData::hIconEnemy = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_TRAPBRICK), IMAGE_ICON, 50, 50, 0);
+
+            EngineData::hIconClear = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EXITBRICK), IMAGE_ICON, 50, 50, 0);
+
+            if (!guideImg)
+            {
+                MessageBox(hWnd, L"가이드 이미지를 로드할 수 없습니다.", L"에러", MB_OK);
+            }
         }
 
         /// 메인 화면 나가기 버튼
@@ -396,6 +426,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             /// 맵 표시 false
             playMap1 = false;
+            guide = false;
+
+            playGameButton.setCoordinate(425, 500, 525, 600);
+            guideButton.setCoordinate(675, 500, 775, 600);
+            mainExitButton.setCoordinate(925, 500, 1250, 600);
         }
 
         /// 개발자 버튼 (플레이 시 출력 되는 버튼)
@@ -420,7 +455,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (!keyOn)             /// 누르는 동안 타이머 무한 생성 방지
                 {           
                     keyOn = true;
-                    SetTimer(hWnd, IDT_TIMER1, 5, NULL);    /// 이동 타이머
+                    SetTimer(hWnd, IDT_TIMER1, 2, NULL);    /// 이동 타이머
                 }
                 break;
 
@@ -447,6 +482,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     }
+    
     case WM_KEYUP:
     {
         switch (wParam)
@@ -501,8 +537,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 else
                 {
+                    
                     if (EngineData::gravityVelocity < 0) { break; }
-                    EngineData::gravityVelocity = GRAVITY_SPEED;
+                    EngineData::gravityVelocity = GRAVITY_SPEED - 1.5;
+
+                    HDC hdc = GetDC(hWnd);
+
+                    effectIcon = (HICON)LoadImage(
+                        GetModuleHandle(NULL),
+                        MAKEINTRESOURCE(IDI_SPARKICON), 
+                        IMAGE_ICON,  32, 32, 0);
+
+                    /// 아이콘 그리기
+                    DrawIconEx(hdc,
+                        EngineData::userBox.left + 16,
+                        EngineData::userBox.top,
+                        effectIcon, 32, 32, 0, NULL, DI_NORMAL);
+
+                    /// 아이콘 자원 해제
+                    DestroyIcon(effectIcon);
                 }
             }
             if (isMovingLeft)   /// 좌측 방향키 이동 
@@ -525,7 +578,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 else
                 {
                     if (EngineData::gravityVelocity < 0) { break; }
-                    EngineData::gravityVelocity = GRAVITY_SPEED;
+                    EngineData::gravityVelocity = GRAVITY_SPEED - 1.5;
+
+                    HDC hdc = GetDC(hWnd);
+
+                    effectIcon = (HICON)LoadImage(
+                        GetModuleHandle(NULL),
+                        MAKEINTRESOURCE(IDI_SPARKICON),
+                        IMAGE_ICON, 32, 32, 0);
+
+                    /// 아이콘 그리기
+                    DrawIconEx(hdc,
+                        EngineData::userBox.left - 16,
+                        EngineData::userBox.top,
+                        effectIcon, 32, 32, 0, NULL, DI_NORMAL);
+
+                    /// 아이콘 자원 해제
+                    DestroyIcon(effectIcon);
                 }
             }
             InvalidateRect(hWnd, NULL, TRUE);   /// 이동할 때마다 화면 무효화 발생시켜 바로 갱신
@@ -537,9 +606,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
             if (EngineData::isStopwatchRunning)
             {
-                EngineData::elapsedTime = (GetTickCount() - EngineData::playTimer) / 1000.0; // 초 단위
+                EngineData::elapsedTime = (GetTickCount64() - EngineData::playTimer) / 1000.0; // 초 단위
             }
-
+            
             EngineData::gravityVelocity += GRAVITY_ACCELERATION;    /// 중력값 증가
             EngineData::playerSpeed += 0.01f;                       /// 플레이어 가속도 증가
 
@@ -589,8 +658,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 KillTimer(hWnd, IDT_GRAVITY_TIMER);
                 KillTimer(hWnd, IDT_TIMER1);
 
-                /// 메세지 출력
-                MessageBox(hWnd, L"클리어", L"클리어", MB_OK);
+                // 메시지 생성
+                wchar_t message[256];
+                swprintf(message, 256, L"클리어! 경과 시간: %.2f초", EngineData::elapsedTime);
+
+                // 메시지 출력
+                MessageBox(hWnd, message, L"클리어", MB_OK);
             }
 
 
@@ -657,8 +730,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         static int oldWidth = 0, oldHeight = 0;
 
         // 윈도우 크기 가져오기
-        RECT clientRect;
-        GetClientRect(hWnd, &clientRect);
+        
         int width = clientRect.right - clientRect.left;
         int height = clientRect.bottom - clientRect.top;
 
@@ -756,13 +828,83 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         }
 
+        if (guide)
+        {
+            Rectangle(hMemDC, 0, 0, 1500, 900);
+
+            WCHAR buffer[50];
+
+            /// 벽 아이콘 그리기
+            DrawIconEx(hMemDC, 150, 50, EngineData::hIcon, 50, 50, 0, NULL, DI_NORMAL);
+
+            /// 게임 정보
+            swprintf_s(buffer, 50, L"벽 : 통과할 수 없는 장애물입니다");
+            TextOut(hMemDC, 250, 70, buffer, wcslen(buffer));
+
+
+            /// 아이템 아이콘 그리기
+            DrawIconEx(hMemDC, 150, 150, EngineData::hIconItem, 50, 50, 0, NULL, DI_NORMAL);
+
+
+            swprintf_s(buffer, 50, L"점프대 : 높이 점프를 시켜주는 아이템입니다.");
+            TextOut(hMemDC, 250, 170, buffer, wcslen(buffer));
+
+            /// 장애물 아이콘 그리기
+            DrawIconEx(hMemDC, 150, 250, EngineData::hIconEnemy, 50, 50, 0, NULL, DI_NORMAL);
+
+            swprintf_s(buffer, 50, L"장애물 : 부딪히면 생명력이 줄어들며 초기 위치로 돌아갑니다.");
+            TextOut(hMemDC, 250, 270, buffer, wcslen(buffer));
+
+            /// 클리어 아이콘 그리기
+            DrawIconEx(hMemDC, 150, 350, EngineData::hIconClear, 50, 50, 0, NULL, DI_NORMAL);
+
+            swprintf_s(buffer, 50, L"클리어 : 이 지점에 도달 시 게임은 클리어 됩니다.");
+            TextOut(hMemDC, 250, 370, buffer, wcslen(buffer));
+
+            MoveToEx(hMemDC, 800, 50, NULL);
+            LineTo(hMemDC, 800, 800);
+
+            /// 배경 이미지 출력
+            if (guideImg)
+            {
+                HDC hBackgroundDC = CreateCompatibleDC(hdc);
+                SelectObject(hBackgroundDC, guideImg);
+                // 원본 비트맵 크기
+                BITMAP bmp;
+                GetObject(guideImg, sizeof(BITMAP), &bmp);
+
+                StretchBlt(
+                    hMemDC,                         // 출력할 DC
+                    900, 50,            // 출력 시작 위치
+                    400, 400,                      // 출력할 너비와 높이
+                    hBackgroundDC,                  // 원본 비트맵 DC
+                    0, 0,                           // 원본 비트맵의 시작 위치
+                    bmp.bmWidth, bmp.bmHeight,      // 원본 비트맵의 너비와 높이
+                    SRCCOPY                         // 복사 방식
+                );
+                DeleteDC(hBackgroundDC);
+            }
+
+            swprintf_s(buffer, 50, L"하강 시 벽과 접촉한 방향으로 방향키 입력 시");
+            TextOut(hMemDC, 930, 500, buffer, wcslen(buffer));
+
+            swprintf_s(buffer, 50, L"이펙트와 함께 천천히 하강합니다");
+            TextOut(hMemDC, 930, 530, buffer, wcslen(buffer));
+
+            exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
+        }
+
+
+
         /// 더블 버퍼링된 내용을 화면에 출력
         BitBlt(hdc, 0, 0, width, height, hMemDC, 0, 0, SRCCOPY);
 
         EndPaint(hWnd, &ps);
         break;
     }
-
+    case WM_SIZE:
+        GetClientRect(hWnd, &clientRect);
+        break;
     case WM_ERASEBKGND:
         return 1; // 화면 지우기 방지
 

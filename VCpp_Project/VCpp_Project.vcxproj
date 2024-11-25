@@ -159,6 +159,7 @@
     <Image Include="..\image\MainExit_Icon.ico" />
     <Image Include="..\image\Play_Button.ico" />
     <Image Include="..\image\Spark_Icon.ico" />
+    <Image Include="..\image\Spark_Img.bmp" />
     <Image Include="..\image\Trap_Brick.ico" />
     <Image Include="..\image\Wall_Brick.ico" />
     <Image Include="small.ico" />
