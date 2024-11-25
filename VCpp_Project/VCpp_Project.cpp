@@ -288,6 +288,7 @@ RECT a;                     /// 그냥 반환용 RECT
 HBITMAP hBackground;        /// 배경 이미지 핸들
 HFONT hFontText;            /// 메인 화면 텍스트
 HFONT hOldFont;
+HICON effectIcon;
 
 bool playMap1 = false;      /// 맵 출력 여부 변수
 bool keyOn = false;         /// 키 입력 관련 변수
@@ -311,8 +312,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
-       
-
+        
         /// 창 생성시 창 크기를 받아옴
         GetClientRect(hWnd, &clientRect);
         break;
@@ -354,11 +354,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 MessageBox(hWnd, L"배경 이미지를 로드할 수 없습니다.", L"에러", MB_OK);
             }
 
+            /// 아이콘 로드
+            effectIcon = (HICON)LoadImage(GetModuleHandle(NULL),
+                MAKEINTRESOURCE(IDI_SPARKICON),
+                IMAGE_ICON,
+                32,
+                32,
+                0
+            );
+
             /// 맵 활성화
             playMap1 = true;
 
             /// 기본값으로 개발자 모드는 false
             EngineData::developMode = false;
+
+            EngineData::playTimer = GetTickCount();
+            EngineData::isStopwatchRunning = true;
         }
 
         /// 메인 화면 가이드 버튼
@@ -402,30 +414,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
             case VK_RIGHT:
-                isMovingRight = true;   /// 우측 이동 변수 true
-                RECT tempUserBox = EngineData::userBox;
-                if (!keyOn)             /// 누르는 동안 타이머 무한 생성 방지
-                {
-                    /// 임시 RECT에 플레이어 이동 방향 좌표 적용
-                    tempUserBox.left += EngineData::playerSpeed;
-                    tempUserBox.right += EngineData::playerSpeed;
 
-                    if (IsCollidingWithWall(tempUserBox, EngineData::mapGrid, 0, 0))
-                    {
-                        break;
-                    }
-                    
+                isMovingRight = true;   /// 우측 이동 변수 true
+              
+                if (!keyOn)             /// 누르는 동안 타이머 무한 생성 방지
+                {           
                     keyOn = true;
-                    SetTimer(hWnd, IDT_TIMER1, 1, NULL);    /// 이동 타이머
+                    SetTimer(hWnd, IDT_TIMER1, 5, NULL);    /// 이동 타이머
                 }
                 break;
 
             case VK_LEFT:
+
                 isMovingLeft = true;    /// 좌측 이동 변수 true
+
                 if (!keyOn)             /// 누르는 동안 타이머 무한 생성 방지
                 {
                     keyOn = true;
-                    SetTimer(hWnd, IDT_TIMER1, 1, NULL);    /// 이동 타이머
+                    SetTimer(hWnd, IDT_TIMER1, 2, NULL);    /// 이동 타이머
                 }
                 break;
 
@@ -473,7 +479,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             /// 임시 RECT 선언
             RECT tempUserBox = EngineData::userBox;
-
+            
 
             /// 방향키 이동
             if (isMovingRight)  /// 우측 방향키 이동
@@ -492,7 +498,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         EngineData::userBox = tempUserBox;  /// 충돌 X 이니 유저 RECT에 임시 RECT 적용
                     }
                     break;
-                }            
+                }
+                else
+                {
+                    if (EngineData::gravityVelocity < 0) { break; }
+                    EngineData::gravityVelocity = GRAVITY_SPEED;
+                }
             }
             if (isMovingLeft)   /// 좌측 방향키 이동 
             { 
@@ -511,6 +522,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     }     
                     break;
                 }
+                else
+                {
+                    if (EngineData::gravityVelocity < 0) { break; }
+                    EngineData::gravityVelocity = GRAVITY_SPEED;
+                }
             }
             InvalidateRect(hWnd, NULL, TRUE);   /// 이동할 때마다 화면 무효화 발생시켜 바로 갱신
         }
@@ -519,6 +535,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         else if (wParam == IDT_GRAVITY_TIMER)
         {
             
+            if (EngineData::isStopwatchRunning)
+            {
+                EngineData::elapsedTime = (GetTickCount() - EngineData::playTimer) / 1000.0; // 초 단위
+            }
+
             EngineData::gravityVelocity += GRAVITY_ACCELERATION;    /// 중력값 증가
             EngineData::playerSpeed += 0.01f;                       /// 플레이어 가속도 증가
 
@@ -594,7 +615,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             else    /// 바닥과 충돌했을 때
             {
-                isJumping = false;                              /// 바닥과 충돌시 점프 재사용 가능
+                if (EngineData::gravityVelocity > 0) { 
+                    isJumping = false;                              /// 바닥과 충돌시 점프 재사용 가능
+                }
                 EngineData::playerSpeed = BASIC_PLAYER_SPEED;   /// 바닥과 충돌시 플레이어 가속도 기본 속도로 지정
 
                 /// 충돌 발생 시 바운스

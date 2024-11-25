@@ -31,15 +31,13 @@ void MakeButton::drawRectButton(HDC tHdc, int icon)
     /// 아이콘 그리기
     buttonLoadImage(this->icon, tHdc);
 
-    
     /// 이전 브러시와 펜 복원
     SelectObject(tHdc, hOldBrush);
     SelectObject(tHdc, hOldPen);
 
     /// 리소스 해제
     DeleteObject(hOldBrush);
-    DeleteObject(hOldPen);
-    
+    DeleteObject(hOldPen); 
 }
 
 void MakeButton::buttonLoadImage(int icon, HDC tHdc)

@@ -108,5 +108,8 @@
     <Image Include="..\image\Heart_Icon.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="..\image\Spark_Icon.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

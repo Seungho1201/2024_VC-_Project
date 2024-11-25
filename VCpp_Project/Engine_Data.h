@@ -21,4 +21,8 @@ public:
     static float imageMove;
 
     static int playerHeart;
+
+    static DWORD playTimer;
+    static double elapsedTime; // 경과 시간
+    static bool isStopwatchRunning; // 스톱워치 동작 여부
 };

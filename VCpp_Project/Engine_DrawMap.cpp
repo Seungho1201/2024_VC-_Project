@@ -63,18 +63,26 @@ void Engine_DrawMap::settingMap()
         EngineData::mapGrid[3][x] = 1;
     }
 
-    for (int x = 15; x < 27; x++)
+    for (int x = 20; x < 27; x++)
     {
         EngineData::mapGrid[7][x] = 1;
     }
 
+    EngineData::mapGrid[8][20] = 1;
+    EngineData::mapGrid[9][20] = 1;
+    EngineData::mapGrid[10][20] = 1;
 
-
+    for (int y = 5; y < 11; y++)
+    {
+        EngineData::mapGrid[y][13] = 1;
+    }
 
 
     EngineData::mapGrid[10][2] = 2; // (1, 2) 위치에 아이템을 설정
     EngineData::mapGrid[11][9] = 2; // (1, 2) 위치에 아이템을 설정
     EngineData::mapGrid[6][10] = 2; // (1, 2) 위치에 아이템을 설정
+    EngineData::mapGrid[9][18] = 2;
+    EngineData::mapGrid[9][14] = 2;
 
     for (int y = 3; y < 7; y++)
     {
@@ -84,6 +92,8 @@ void Engine_DrawMap::settingMap()
     {
         EngineData::mapGrid[y][10] = 3;
     }
+
+
 
     EngineData::mapGrid[7][7] = 3; 
     EngineData::mapGrid[11][6] = 3;
@@ -97,8 +107,17 @@ void Engine_DrawMap::settingMap()
     //EngineData::mapGrid[1][20] = 3;
     EngineData::mapGrid[2][20] = 3;
 
+    EngineData::mapGrid[0][23] = 3;
     EngineData::mapGrid[1][23] = 3;
+    EngineData::mapGrid[10][23] = 3;
+    EngineData::mapGrid[11][23] = 3;
 
+    EngineData::mapGrid[6][16] = 3;
+
+    for (int x = 14; x < 20; x++)
+    {
+        EngineData::mapGrid[10][x] = 3;
+    }
 
     EngineData::mapGrid[11][25] = 4; // (1, 2) 위치에 아이템을 설정
 }
@@ -286,6 +305,19 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
     // 이전 펜 복원
     SelectObject(hMemDC, hOldPen);
 
+    WCHAR buffer[50];
+
+    /// 게임 정보
+    swprintf_s(buffer, 50, L"점프 : C");
+    TextOut(hMemDC, 275, 720, buffer, wcslen(buffer));
+
+    swprintf_s(buffer, 50, L"이동 : ← →");
+    TextOut(hMemDC, 275, 750, buffer, wcslen(buffer));
+
+    /// 걸린 시간
+    swprintf_s(buffer, 50, L"타이머 : %05.2f", EngineData::elapsedTime);
+    TextOut(hMemDC, 275, 775, buffer, wcslen(buffer));
+
     if (EngineData::developMode)
     {
         WCHAR buffer[50];
@@ -318,10 +350,10 @@ void Engine_DrawMap::drawInfo(HDC hMemDC)
 
         // 현 마우스 좌표
         swprintf_s(buffer, 50, L"현재 X 좌표 : %d", (EngineData::userBox.left + EngineData::userBox.right) / 2);
-        TextOut(hMemDC, 200, 780, buffer, wcslen(buffer));
+        TextOut(hMemDC, 200, 810, buffer, wcslen(buffer));
 
         swprintf_s(buffer, 50, L"현재 Y 좌표 : %d", (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
-        TextOut(hMemDC, 200, 810, buffer, wcslen(buffer));
+        TextOut(hMemDC, 400, 810, buffer, wcslen(buffer));
 
         // 파란색 펜 생성
         HPEN hBluePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255)); // 파란색

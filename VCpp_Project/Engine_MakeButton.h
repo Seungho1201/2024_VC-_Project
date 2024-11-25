@@ -8,8 +8,6 @@ class MakeButton
 {
 private:
     int icon;             /// 아이콘 지정 멤버 변수
-    int x;                /// 버튼의 x 위치
-    int y;                /// 버튼의 y 위치
     int width;            /// 버튼의 폭
     int height;           /// 버튼의 높이
     int func;             /// 버튼의 ID

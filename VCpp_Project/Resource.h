@@ -54,6 +54,7 @@
 #define IDI_EXITBRICK       209
 #define IDI_EMPTYHEARTICON  210
 #define IDI_HEARTICON       211
+#define IDI_SPARKICON       212
 
 #endif
 // 다음은 새 개체에 사용할 기본값입니다.
