@@ -409,7 +409,7 @@ void Engine_DrawMap::drawGuide(HDC hMemDC)
 {
     Rectangle(hMemDC, 0, 0, 1500, 900);
 
-    WCHAR buffer[50];
+    WCHAR buffer[250];
 
     /// 벽 아이콘 그리기
     DrawIconEx(hMemDC, 150, 50, EngineData::hIcon, 50, 50, 0, NULL, DI_NORMAL);
@@ -435,6 +435,23 @@ void Engine_DrawMap::drawGuide(HDC hMemDC)
 
     swprintf_s(buffer, 50, L"클리어 : 이 지점에 도달 시 게임은 클리어 됩니다.");
     TextOut(hMemDC, 250, 370, buffer, wcslen(buffer));
+
+    swprintf_s(buffer, 150, L"벽 아이콘 제작자: Alfredo Hernandez - Flaticon : https://www.flaticon.com/kr/free-icons/\"title=\"벽돌 아이콘");
+    TextOut(hMemDC, 50, 600, buffer, wcslen(buffer));
+
+    swprintf_s(buffer, 150, L"점프대 아이콘 제작자: Freepik - Flaticon : https://www.flaticon.com/kr/free-icons/\"title=\"트램폴린 아이콘");
+    TextOut(hMemDC, 50, 630, buffer, wcslen(buffer));
+
+    swprintf_s(buffer, 150, L"장애물 아이콘 제작자: SA Family - Flaticon : https://www.flaticon.com/kr/free-icons/\"title=\"가시 아이콘");
+    TextOut(hMemDC, 50, 660, buffer, wcslen(buffer));
+
+    swprintf_s(buffer, 150, L"클리어 아이콘 제작자: BankSeeNgern - Flaticon : https://www.flaticon.com/kr/free-icons/\"title=\"탈출 아이콘");
+    TextOut(hMemDC, 50, 690, buffer, wcslen(buffer));
+
+    swprintf_s(buffer, 200, L"스파크 아이콘 제작자 :June Design - Flaticon : https://www.flaticon.com/kr/free-icons/\"title=\"새해 아이콘");
+    TextOut(hMemDC, 50, 720, buffer, wcslen(buffer));
+
+
 
     MoveToEx(hMemDC, 800, 50, NULL);
     LineTo(hMemDC, 800, 800);

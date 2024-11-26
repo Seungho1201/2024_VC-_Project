@@ -638,6 +638,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 isJumping = false;                 /// 아이템 충돌시 점프 다시 가능
             }
 
+
             /// 장애물 충돌 여부 확인
             else if (IsCollidingWithEnemy(EngineData::userBox, EngineData::mapGrid, 0, 0))
             {
@@ -657,6 +658,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 /// 배경 이미지 위치도 원래대로 복귀
                 imageMove = (clientRect.left + clientRect.right) / 2.0;
             }
+
 
             /// 장애물 충돌 여부 확인
             else if (IsCollidingWithClear(EngineData::userBox, EngineData::mapGrid, 0, 0))
@@ -833,9 +835,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
             developButtton.drawRectButton(hMemDC, IDI_DEVELOPBUTTON);
         }
-
         /// 가이드 출력
-        if (guide)
+        else if (guide)
         {
             /// 가이드 구성
             Engine_DrawMap::drawGuide(hMemDC);
