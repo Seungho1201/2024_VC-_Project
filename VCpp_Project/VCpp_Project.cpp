@@ -536,18 +536,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     }
                     break;
                 }
-                else
+                else    /// 벽이랑 충돌할 시
                 {
                     /// 하강 중일때만 벽 마찰 이용 가능하게 제한 
                     /// 중력 값이 양수일때만 허용
-                    if (EngineData::gravityVelocity < 0) { 
-                        break; 
-                    }
+                    if (EngineData::gravityVelocity < 2.5) { break; }
 
-                    EngineData::gravityVelocity = GRAVITY_SPEED - 1.5;
+                    EngineData::gravityVelocity = GRAVITY_SPEED - 1.75;
 
-
-                    /// 교수님... 스파크 gif가 구현이 안되길래
+                    /// 교수님... 스파크 이펙트 gif가 구현이 안되길래
                     /// 더블 버퍼링이 아닌 hdc는 깜빡이던 플리커링 효과를 이용해서
                     /// 스파크 아이콘을 그려보았더니 스파크랑 비슷하게 구현은 됩니다..
 
@@ -558,9 +555,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         EngineData::userBox.left + 16,
                         EngineData::userBox.top,
                         effectIcon, 32, 32, 0, NULL, DI_NORMAL);
-
-                    /// 아이콘 자원 해제
-                    //DestroyIcon(effectIcon);
                 }
             }
             if (isMovingLeft)   /// 좌측 방향키 이동 
@@ -582,26 +576,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 else
                 {
-                    if (EngineData::gravityVelocity < 0) { break; }
-                    EngineData::gravityVelocity = GRAVITY_SPEED - 1.5;
+                    if (EngineData::gravityVelocity < 2.5) { break; }
+                    EngineData::gravityVelocity = GRAVITY_SPEED - 1.75;
                     
                     HDC hdc = GetDC(hWnd);
 
-                    
-                    /*
-                    effectIcon = (HICON)LoadImage(
-                        GetModuleHandle(NULL),
-                        MAKEINTRESOURCE(IDI_SPARKICON),
-                        IMAGE_ICON, 32, 32, 0);
-                        */
                     /// 아이콘 그리기
                     DrawIconEx(hdc,
                         EngineData::userBox.left - 16,
                         EngineData::userBox.top,
                         effectIcon, 32, 32, 0, NULL, DI_NORMAL);
-
-                    /// 아이콘 자원 해제
-                    //DestroyIcon(effectIcon);
                 }
             }
             InvalidateRect(hWnd, NULL, TRUE);   /// 이동할 때마다 화면 무효화 발생시켜 바로 갱신

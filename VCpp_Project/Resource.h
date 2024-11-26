@@ -35,7 +35,7 @@
 /// 가속도 관련
 #define MOVE_ACCELERATION       0.05f    /// 중력 가속도
 #define GRAVITY_ACCELERATION    0.25f    /// 중력 가속도
-#define MAX_GRAVITY_SPEED       17.00f   /// 최대 중력 속도
+#define MAX_GRAVITY_SPEED       13.75f   /// 최대 중력 속도
 #define MAX_PLAYER_SPEED        7.5f
 #define BASIC_PLAYER_SPEED      5.0f
 
