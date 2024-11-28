@@ -199,7 +199,6 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
 
     Rectangle(hMemDC, 0, 0, 50, 710);
     Rectangle(hMemDC, 1400, 0, 1450, 710);
-
     // 이전 펜 복원
     SelectObject(hMemDC, hOldPen);
 
@@ -210,11 +209,14 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
     TextOut(hMemDC, 275, 720, buffer, wcslen(buffer));
 
     swprintf_s(buffer, 50, L"이동 : ← →");
-    TextOut(hMemDC, 275, 750, buffer, wcslen(buffer));
+    TextOut(hMemDC, 275, 747, buffer, wcslen(buffer));
 
     /// 걸린 시간
     swprintf_s(buffer, 50, L"타이머 : %05.2f", EngineData::elapsedTime);
     TextOut(hMemDC, 275, 775, buffer, wcslen(buffer));
+
+    MoveToEx(hMemDC, 260, 720, NULL);
+    LineTo(hMemDC, 260, 790);
 
     if (EngineData::developMode)
     {
@@ -236,22 +238,26 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
 
 void Engine_DrawMap::drawInfo(HDC hMemDC)
 {
-    if (EngineData::developMode) {
+    if (EngineData::developMode) 
+    {
+        MoveToEx(hMemDC, 50, 800, NULL);
+        LineTo(hMemDC, 730, 800);
+
         WCHAR buffer[50];
 
         /// 현재 가속도
         swprintf_s(buffer, 50, L"현재 중력가속도 : %.2f", EngineData::gravityVelocity);
-        TextOut(hMemDC, 10, 780, buffer, wcslen(buffer));
+        TextOut(hMemDC, 50, 810, buffer, wcslen(buffer));
 
         swprintf_s(buffer, 50, L"현재 이동가속도 : %.2f", EngineData::playerSpeed);
-        TextOut(hMemDC, 10, 810, buffer, wcslen(buffer));
+        TextOut(hMemDC, 250, 810, buffer, wcslen(buffer));
 
         // 현 마우스 좌표
         swprintf_s(buffer, 50, L"현재 X 좌표 : %d", (EngineData::userBox.left + EngineData::userBox.right) / 2);
-        TextOut(hMemDC, 200, 810, buffer, wcslen(buffer));
+        TextOut(hMemDC, 450, 810, buffer, wcslen(buffer));
 
         swprintf_s(buffer, 50, L"현재 Y 좌표 : %d", (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
-        TextOut(hMemDC, 400, 810, buffer, wcslen(buffer));
+        TextOut(hMemDC, 600, 810, buffer, wcslen(buffer));
 
         // 파란색 펜 생성
         HPEN hBluePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255)); // 파란색
@@ -282,17 +288,19 @@ void Engine_DrawMap::drawHeart(HDC hMemDC)
     static HICON hIconEmptyHeart = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EMPTYHEARTICON),IMAGE_ICON, 50, 50, 0);
     static HICON hIconHeart = (HICON)LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_HEARTICON), IMAGE_ICON, 50, 50, 0 );
 
+    Rectangle(hMemDC, 50, 720, 240, 790);
+
     for (int y = EngineData::playerHeart; y < 3; y++)
     {
         /// 아이콘 그리기
-        DrawIconEx(hMemDC, 50 + y * 60, 720, hIconEmptyHeart,
+        DrawIconEx(hMemDC, 60 + y * 60, 730, hIconEmptyHeart,
             50, 50, 0, NULL, DI_NORMAL);
     }
 
     for (i; i < EngineData::playerHeart; i++)
     {
         /// 아이콘 그리기
-        DrawIconEx(hMemDC, 50 + i * 60, 720, hIconHeart,
+        DrawIconEx(hMemDC, 60 + i * 60, 730, hIconHeart,
             50, 50, 0, NULL, DI_NORMAL);
     }
 }
