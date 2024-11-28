@@ -318,6 +318,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         
         /// 창 생성시 창 크기를 받아옴
         GetClientRect(hWnd, &clientRect);
+
+
         break;
     }
     case WM_LBUTTONDOWN:
@@ -341,6 +343,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EngineData::userBox.top = 500;
             EngineData::userBox.right = 90;
             EngineData::userBox.bottom = 60;
+
             startPoint = EngineData::userBox;
 
             /// Engine_DrawMap 파일에서 맵과 아이템 구성
@@ -364,12 +367,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EngineData::hIconClear = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EXITBRICK),  IMAGE_ICON,  50, 50, 0 );
 
             effectIcon = (HICON)LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_SPARKICON),IMAGE_ICON, 32, 32, 0);
+            
             /// 로드 실패시 메세지 출력
-            if (!EngineData::hBackground)
-            {
-                MessageBox(hWnd, L"배경 이미지를 로드할 수 없습니다.", L"에러", MB_OK);
-            }
-
+            if (!EngineData::hBackground)   { MessageBox(hWnd, L"배경 이미지를 로드할 수 없습니다.",   L"에러", MB_OK); }
+            if (!EngineData::hIcon)         { MessageBox(hWnd, L"아이콘 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
+            if (!EngineData::hIconItem)     { MessageBox(hWnd, L"아이템 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
+            if (!EngineData::hIconEnemy)    { MessageBox(hWnd, L"장애물 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
+            if (!EngineData::hIconClear)    { MessageBox(hWnd, L"클리어 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
+            //if (!effectIcon)   { MessageBox(hWnd, L" 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
+            
             /// 맵 활성화
             playMap1 = true;
 
@@ -394,6 +400,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             mainExitButton.setCoordinate(-500, -500, -500, -500);
 
             guide = true;
+
             guideImg = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_SPARKIMG), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
             
             EngineData::hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_WALLBRICK), IMAGE_ICON, 50, 50, 0);
@@ -812,8 +819,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             Ellipse(hMemDC, EngineData::userBox.left, EngineData::userBox.top, EngineData::userBox.right, EngineData::userBox.bottom);
 
             /// 중력 속도 표시
-            Engine_DrawMap::drawInfo(hMemDC);
             Engine_DrawMap::drawHeart(hMemDC);
+            Engine_DrawMap::drawInfo(hMemDC);
 
             /// 플레이 화면 내 버튼
             exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);

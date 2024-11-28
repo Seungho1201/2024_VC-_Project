@@ -97,21 +97,12 @@ void Engine_DrawMap::settingMap()
 
     EngineData::mapGrid[7][7] = 3; 
     EngineData::mapGrid[11][6] = 3;
-
-    //EngineData::mapGrid[1][17] = 3;
     EngineData::mapGrid[2][17] = 3;
-
-    //EngineData::mapGrid[1][11] = 3;
-
-
-    //EngineData::mapGrid[1][20] = 3;
     EngineData::mapGrid[2][20] = 3;
-
     EngineData::mapGrid[0][23] = 3;
     EngineData::mapGrid[1][23] = 3;
     EngineData::mapGrid[10][23] = 3;
     EngineData::mapGrid[11][23] = 3;
-
     EngineData::mapGrid[6][16] = 3;
 
     for (int x = 14; x < 20; x++)
@@ -140,127 +131,30 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
 
             if (EngineData::mapGrid[i][j] == 1) // 벽
             {
-                /*
-                // 벽은 RECT로 색 채우기
-                HBRUSH wallBrush = CreateSolidBrush(RGB(100, 100, 100));
-                FillRect(hMemDC, &cellRect, wallBrush);
-                DeleteObject(wallBrush);
-                */
-                /*
-                /// 아이콘 로드
-                 hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
-                    MAKEINTRESOURCE(IDI_WALLBRICK),
-                    IMAGE_ICON,
-                    50,
-                    50,
-                    0
-                );
-                */
                 /// 아이콘 그리기
                 DrawIconEx(hMemDC,
                     j * CELL_WIDTH + EngineData::mapOffset,
                     i * CELL_HEIGHT + EngineData::mapOffset,
                     EngineData::hIcon, 50, 50, 0, NULL, DI_NORMAL);
 
-                /// 아이콘 자원 해제
-                //DestroyIcon(hIcon);
             }
             else if (EngineData::mapGrid[i][j] == 2) // 아이템
             {
-                /*
-                HPEN hNullPen = (HPEN)GetStockObject(NULL_PEN); // 투명한 펜 생성
-                HPEN hOldPen = (HPEN)SelectObject(hMemDC, hNullPen); // 이전 펜 저장
-                // 아이템을 초록색 원으로 표시
-                HBRUSH itemBrush = CreateSolidBrush(RGB(0, 255, 0)); // 초록색
-                HBRUSH oldBrush = (HBRUSH)SelectObject(hMemDC, itemBrush);
-
-                Ellipse(hMemDC, cellRect.left, cellRect.top, cellRect.right, cellRect.bottom);
-                // 이전 펜 복원
-                SelectObject(hMemDC, hOldPen);
-
-                SelectObject(hMemDC, oldBrush); // 이전 브러시로 복원
-                DeleteObject(itemBrush);
-                */
-
-                /*
-                 hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
-                    MAKEINTRESOURCE(IDI_JUMPBRICK),
-                    IMAGE_ICON,
-                    50,
-                    50,
-                    0
-                );
-                */
-                /// 아이콘 그리기
                 DrawIconEx(hMemDC,
                     j * CELL_WIDTH + EngineData::mapOffset,
                     i * CELL_HEIGHT + EngineData::mapOffset,
                     EngineData::hIconItem, 50, 50, 0, NULL, DI_NORMAL);
-
-                /// 아이콘 자원 해제
-                //DestroyIcon(hIcon);
             }
             else if (EngineData::mapGrid[i][j] == 3) // 장애물
             {
-                /*
-                HPEN hNullPen = (HPEN)GetStockObject(NULL_PEN); // 투명한 펜 생성
-                HPEN hOldPen = (HPEN)SelectObject(hMemDC, hNullPen); // 이전 펜 저장
-                // 아이템을 초록색 원으로 표시
-                HBRUSH itemBrush = CreateSolidBrush(RGB(255, 0, 0)); // 초록색
-                HBRUSH oldBrush = (HBRUSH)SelectObject(hMemDC, itemBrush);
-
-                Rectangle(hMemDC, cellRect.left, cellRect.top, cellRect.right, cellRect.bottom);
-                // 이전 펜 복원
-                SelectObject(hMemDC, hOldPen);
-
-                SelectObject(hMemDC, oldBrush); // 이전 브러시로 복원
-                DeleteObject(itemBrush);
-                */
-                /// 아이콘 로드
-                /*
-                hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
-                    MAKEINTRESOURCE(IDI_TRAPBRICK),
-                    IMAGE_ICON,
-                    50,
-                    50,
-                    0
-                );
-                */
-                /// 아이콘 그리기
                 DrawIconEx(hMemDC,
                     j * CELL_WIDTH + EngineData::mapOffset,
                     i * CELL_HEIGHT + EngineData::mapOffset,
                     EngineData::hIconEnemy, 50, 50, 0, NULL, DI_NORMAL);
-
-                /// 아이콘 자원 해제
-                //DestroyIcon(hIcon);
             }
             else if (EngineData::mapGrid[i][j] == 4) // 클리어 지점
             {
-                /*
-                HPEN hNullPen = (HPEN)GetStockObject(NULL_PEN); // 투명한 펜 생성
-                HPEN hOldPen = (HPEN)SelectObject(hMemDC, hNullPen); // 이전 펜 저장
-                // 아이템을 초록색 원으로 표시
-                HBRUSH itemBrush = CreateSolidBrush(RGB(0, 0, 150)); // 초록색
-                HBRUSH oldBrush = (HBRUSH)SelectObject(hMemDC, itemBrush);
 
-                Rectangle(hMemDC, cellRect.left, cellRect.top, cellRect.right, cellRect.bottom);
-                // 이전 펜 복원
-                SelectObject(hMemDC, hOldPen);
-
-                SelectObject(hMemDC, oldBrush); // 이전 브러시로 복원
-                DeleteObject(itemBrush);
-                */
-                /// 아이콘 로드
-                /*
-                 hIcon = (HICON)LoadImage(GetModuleHandle(NULL),
-                    MAKEINTRESOURCE(IDI_EXITBRICK),
-                    IMAGE_ICON,
-                    50,
-                    50,
-                    0
-                );
-                */
                 /// 아이콘 그리기
 
                 DrawIconEx(hMemDC,
@@ -268,8 +162,6 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
                     i* CELL_HEIGHT + EngineData::mapOffset,
                     EngineData::hIconClear, 50, 50, 0, NULL, DI_NORMAL);
 
-                /// 아이콘 자원 해제
-                //DestroyIcon(hIcon);
             }
             else
             {
