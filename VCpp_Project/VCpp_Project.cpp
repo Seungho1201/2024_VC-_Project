@@ -295,6 +295,7 @@ bool guide = false;
 HBITMAP guideImg;        /// 배경 이미지 핸들
 
 bool keyOn = false;         /// 키 입력 관련 변수
+bool mapDraw = false;
 
 bool isMovingRight = false;
 bool isMovingLeft = false;
@@ -308,6 +309,8 @@ MakeButton mainExitButton(925, 500, 1250, 600);
 MakeButton exitButton(1300, 725, 1400, 825);
 MakeButton developButtton(1200, 725, 1300, 825);
 
+
+
 // WndProc 함수
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -315,11 +318,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
-        
         /// 창 생성시 창 크기를 받아옴
         GetClientRect(hWnd, &clientRect);
-
-
         break;
     }
     case WM_LBUTTONDOWN:
@@ -453,6 +453,57 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
 
+    case WM_RBUTTONDOWN:
+    {
+        if (EngineData::developMode)
+        {
+            mapDraw = true;
+
+            HDC hdc = GetDC(hWnd);
+
+            int x = LOWORD(lParam);
+            int y = HIWORD(lParam);
+
+            int xx = (x - 50) / 50;
+            int yy = (y - 50) / 50;
+
+            if (xx < 0 || xx > GRID_COLS) { break; }
+            if (yy < 0 || yy > GRID_ROWS) { break; }
+
+            EngineData::mapGrid[yy][xx] = EngineData::printBlock;
+
+
+            ReleaseDC(hWnd, hdc);
+        }
+        break;
+    }
+    case WM_MOUSEMOVE:
+    {
+        if (mapDraw && EngineData::developMode)
+        {
+            HDC hdc = GetDC(hWnd);
+
+            int x = LOWORD(lParam);
+            int y = HIWORD(lParam);
+
+            int xx = (x - 50) / 50;
+            int yy = (y - 50) / 50;
+
+            if (xx < 0 || xx > GRID_COLS) { break; }
+            if (yy < 0 || yy > GRID_ROWS) { break; }
+
+            EngineData::mapGrid[yy][xx] = EngineData::printBlock;
+
+
+            ReleaseDC(hWnd, hdc);
+        }
+    }
+    break;
+
+    case WM_RBUTTONUP:
+        mapDraw = false;
+        break;
+
     case WM_KEYDOWN:
     {
         switch (wParam)
@@ -488,6 +539,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
             }
             break;
+
+            /// 커스텀 모드 변환 case문
+            case '1':
+                EngineData::printBlock = 1;
+                break;
+            case '2':
+                EngineData::printBlock = 2;
+                break;
+            case '3':
+                EngineData::printBlock = 3;
+                break;
+            case '4':
+                EngineData::printBlock = 4;
+                break;
+            case '5':
+                EngineData::printBlock = 5;
+                break;
+            case '0':
+                EngineData::printBlock = 0;
+                break;
         }
         break;
     }
@@ -562,6 +633,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         EngineData::userBox.left + 16,
                         EngineData::userBox.top,
                         effectIcon, 32, 32, 0, NULL, DI_NORMAL);
+                    
+                    ReleaseDC(hWnd, hdc);
                 }
             }
             if (isMovingLeft)   /// 좌측 방향키 이동 
@@ -635,10 +708,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 /// 장애물 충돌시 원래 시작지점으로 이동
                 EngineData::userBox = startPoint;
-
-                /// 생명력 마이너스
-                EngineData::playerHeart -= 1;
-
+                
+                /// 개발자 모드일 땐 생명력 감소가 없다
+                if (!EngineData::developMode)
+                {
+                    /// 생명력 마이너스
+                    EngineData::playerHeart -= 1;
+                }
+                
                 /// 생명력이 0일시 게임 종료
                 if (EngineData::playerHeart == 0)
                 {
@@ -791,6 +868,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         /// 맵 출력
         if (playMap1)
         {
+
             /// 배경 이미지 출력
             if (EngineData::hBackground)
             {

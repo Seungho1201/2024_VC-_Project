@@ -275,6 +275,65 @@ void Engine_DrawMap::drawInfo(HDC hMemDC)
         MoveToEx(hMemDC, (EngineData::userBox.left + EngineData::userBox.right) / 2, 50, NULL);
         LineTo(hMemDC, (EngineData::userBox.left + EngineData::userBox.right) / 2, (EngineData::userBox.top + EngineData::userBox.bottom) / 2);
 
+        /// 유저 커스텀 모드
+        swprintf_s(buffer, 50, L"0 : 지우개");
+        TextOut(hMemDC, 800, 710, buffer, wcslen(buffer));
+        swprintf_s(buffer, 50, L"1 : 벽");
+        TextOut(hMemDC, 800, 730, buffer, wcslen(buffer));
+        swprintf_s(buffer, 50, L"2 : 점프대");
+        TextOut(hMemDC, 800, 750, buffer, wcslen(buffer));
+        swprintf_s(buffer, 50, L"3 : 장애물");
+        TextOut(hMemDC, 800, 770, buffer, wcslen(buffer));
+        swprintf_s(buffer, 50, L"4 : 클리어");
+        TextOut(hMemDC, 800, 790, buffer, wcslen(buffer));
+        swprintf_s(buffer, 50, L"5 : 초기화");
+        TextOut(hMemDC, 800, 810, buffer, wcslen(buffer));
+
+        Rectangle(hMemDC, 930, 720, 1020, 810);
+
+        if (EngineData::printBlock == 1)
+        {
+            /// 아이콘 그리기
+            DrawIconEx(hMemDC,
+               950,
+                740,
+                EngineData::hIcon, 50, 50, 0, NULL, DI_NORMAL);
+
+        }
+        else if (EngineData::printBlock == 2)
+        {
+            DrawIconEx(hMemDC,
+                950,
+                740,
+                EngineData::hIconItem, 50, 50, 0, NULL, DI_NORMAL);
+        }
+        else if (EngineData::printBlock == 3)
+        {
+            DrawIconEx(hMemDC,
+                950,
+                740,
+                EngineData::hIconEnemy, 50, 50, 0, NULL, DI_NORMAL);
+        }
+        else if (EngineData::printBlock == 4)
+        {
+            DrawIconEx(hMemDC,
+                950,
+                740,
+                EngineData::hIconClear, 50, 50, 0, NULL, DI_NORMAL);
+        }
+        else if (EngineData::printBlock == 5)
+        {
+            for (int i = 0; i < GRID_ROWS-1; i++)
+            {
+                for (int j = 0; j < GRID_COLS; j++)
+                {
+                    EngineData::mapGrid[i][j] = 0;
+                }
+            }
+        }
+
+
+
         // 이전 펜 복원 및 생성한 펜 삭제
         SelectObject(hMemDC, hOldPen);
         DeleteObject(hBluePen);
