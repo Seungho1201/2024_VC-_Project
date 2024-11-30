@@ -299,7 +299,7 @@ bool mapDraw = false;
 
 bool isMovingRight = false;
 bool isMovingLeft = false;
-
+bool mainFirst = true;
 /// 메인 화면 버튼
 MakeButton playGameButton(425, 500, 525, 600);
 MakeButton guideButton(675, 500, 775, 600);
@@ -346,8 +346,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             startPoint = EngineData::userBox;
 
-            /// Engine_DrawMap 파일에서 맵과 아이템 구성
-            Engine_DrawMap::settingMap();
+            /// 처음 들어갈 때만 초기 맵 세팅 
+            if (mainFirst)
+            {
+                /// Engine_DrawMap 파일에서 맵과 아이템 구성
+                Engine_DrawMap::settingMap();
+                mainFirst = false;
+            }
 
             /// 중력 타이머 설정
             SetTimer(hWnd, IDT_GRAVITY_TIMER, 2, NULL);
