@@ -765,7 +765,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 else 
                 {
-                    EngineData::gravityVelocity = GRAVITY_SPEED;
+                    EngineData::gravityVelocity = 2.0;
                 }
             }
             else    /// 바닥과 충돌했을 때
