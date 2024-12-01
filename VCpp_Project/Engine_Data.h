@@ -30,6 +30,9 @@ public:
     static HICON hIconItem;
     static HICON hIconEnemy;
     static HICON hIconClear;
+    static HICON hIconEffect;
+
+    static HICON developIcon;
 
     static int printBlock;
 };

@@ -17,6 +17,15 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+void InitializeResources()
+{
+    EngineData::hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_WALLBRICK), IMAGE_ICON, 50, 50, 0);
+    EngineData::hIconItem = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_JUMPBRICK), IMAGE_ICON, 50, 50, 0);
+    EngineData::hIconEnemy = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_TRAPBRICK), IMAGE_ICON, 50, 50, 0);
+    EngineData::hIconClear = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EXITBRICK), IMAGE_ICON, 50, 50, 0);
+    EngineData::hIconEffect = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_SPARKICON), IMAGE_ICON, 32, 32, 0);
+}
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -318,10 +327,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
+        
+       
+    }
+    break;
+
+    case WM_SIZE:
+    {
         /// 창 생성시 창 크기를 받아옴
         GetClientRect(hWnd, &clientRect);
-        break;
     }
+    break;
+
     case WM_LBUTTONDOWN:
     {
         HDC hdc = GetDC(hWnd);
@@ -371,7 +388,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             EngineData::hIconClear = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EXITBRICK),  IMAGE_ICON,  50, 50, 0 );
 
-            effectIcon = (HICON)LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_SPARKICON),IMAGE_ICON, 32, 32, 0);
+            EngineData::developIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DEVELOPBUTTON), IMAGE_ICON, 50, 50, 0);
+
+            EngineData::hIconEffect = (HICON)LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_SPARKICON),IMAGE_ICON, 32, 32, 0);
             
             /// 로드 실패시 메세지 출력
             if (!EngineData::hBackground)   { MessageBox(hWnd, L"배경 이미지를 로드할 수 없습니다.",   L"에러", MB_OK); }
@@ -379,7 +398,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (!EngineData::hIconItem)     { MessageBox(hWnd, L"아이템 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
             if (!EngineData::hIconEnemy)    { MessageBox(hWnd, L"장애물 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
             if (!EngineData::hIconClear)    { MessageBox(hWnd, L"클리어 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
-            //if (!effectIcon)   { MessageBox(hWnd, L" 이미지를 로드할 수 없습니다.", L"에러", MB_OK); }
+          
             
             /// 맵 활성화
             playMap1 = true;
@@ -416,11 +435,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             EngineData::hIconClear = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_EXITBRICK), IMAGE_ICON, 50, 50, 0);
 
-
-            if (!guideImg)
-            {
-                MessageBox(hWnd, L"가이드 이미지를 로드할 수 없습니다.", L"에러", MB_OK);
-            }
+            EngineData::developIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DEVELOPBUTTON), IMAGE_ICON, 50, 50, 0);
         }
 
         /// 메인 화면 나가기 버튼
@@ -454,6 +469,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EngineData::developMode = !EngineData::developMode;
         }
 
+        ReleaseDC(hWnd, hdc);
         InvalidateRect(hWnd, NULL, TRUE);   /// 화면 무효화
     }
     break;
@@ -547,22 +563,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             /// 커스텀 모드 변환 case문
             case '1':
-                EngineData::printBlock = 1;
+                EngineData::printBlock = 1;     /// 벽
                 break;
             case '2':
-                EngineData::printBlock = 2;
+                EngineData::printBlock = 2;     /// 점프대
                 break;
             case '3':
-                EngineData::printBlock = 3;
+                EngineData::printBlock = 3;     /// 장애물
                 break;
             case '4':
-                EngineData::printBlock = 4;
+                EngineData::printBlock = 4;     /// 클리어
                 break;
             case '5':
-                EngineData::printBlock = 5;
+                EngineData::printBlock = 5;     /// 맵 초기화
                 break;
             case '0':
-                EngineData::printBlock = 0;
+                EngineData::printBlock = 0;     /// 지우개
                 break;
         }
         break;
@@ -637,7 +653,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     DrawIconEx(hdc,
                         EngineData::userBox.left + 16,
                         EngineData::userBox.top,
-                        effectIcon, 32, 32, 0, NULL, DI_NORMAL);
+                        EngineData::hIconEffect, 32, 32, 0, NULL, DI_NORMAL);
                     
                     ReleaseDC(hWnd, hdc);
                 }
@@ -670,7 +686,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     DrawIconEx(hdc,
                         EngineData::userBox.left - 16,
                         EngineData::userBox.top,
-                        effectIcon, 32, 32, 0, NULL, DI_NORMAL);
+                        EngineData::hIconEffect, 32, 32, 0, NULL, DI_NORMAL);
                 }
             }
             InvalidateRect(hWnd, NULL, TRUE);   /// 이동할 때마다 화면 무효화 발생시켜 바로 갱신
@@ -811,8 +827,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         static HBITMAP hBitmap = NULL;
         static int oldWidth = 0, oldHeight = 0;
 
-        // 윈도우 크기 가져오기
-        
         int width = clientRect.right - clientRect.left;
         int height = clientRect.bottom - clientRect.top;
 
@@ -835,7 +849,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         // 메모리 DC 초기화
         FillRect(hMemDC, &clientRect, (HBRUSH)(COLOR_WINDOW + 1));
-
 
         /// 메인화면 구성
         hFontText = CreateFont(
@@ -945,9 +958,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         EndPaint(hWnd, &ps);
         break;
     }
-    case WM_SIZE:
-        GetClientRect(hWnd, &clientRect);
-        break;
     case WM_ERASEBKGND:
         return 1; // 화면 지우기 방지
 

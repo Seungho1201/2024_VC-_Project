@@ -24,5 +24,8 @@ HICON EngineData::hIcon = nullptr;
 HICON EngineData::hIconItem = nullptr;
 HICON EngineData::hIconEnemy = nullptr;
 HICON EngineData::hIconClear = nullptr;
+HICON EngineData::hIconEffect = nullptr;
+
+HICON EngineData::developIcon = nullptr;
 
 int EngineData::printBlock = 0;

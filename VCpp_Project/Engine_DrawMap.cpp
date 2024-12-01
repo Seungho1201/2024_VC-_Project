@@ -377,23 +377,32 @@ void Engine_DrawMap::drawGuide(HDC hMemDC)
     swprintf_s(buffer, 50, L"벽 : 통과할 수 없는 장애물입니다");
     TextOut(hMemDC, 250, 70, buffer, wcslen(buffer));
 
-    /// 아이템 아이콘 그리기
+    /// 아이템 아이콘 
     DrawIconEx(hMemDC, 150, 150, EngineData::hIconItem, 50, 50, 0, NULL, DI_NORMAL);
 
     swprintf_s(buffer, 50, L"점프대 : 높이 점프를 시켜주는 아이템입니다.");
     TextOut(hMemDC, 250, 170, buffer, wcslen(buffer));
 
-    /// 장애물 아이콘 그리기
+    /// 장애물 아이콘 
     DrawIconEx(hMemDC, 150, 250, EngineData::hIconEnemy, 50, 50, 0, NULL, DI_NORMAL);
 
     swprintf_s(buffer, 50, L"장애물 : 부딪히면 생명력이 줄어들며 초기 위치로 돌아갑니다.");
     TextOut(hMemDC, 250, 270, buffer, wcslen(buffer));
 
-    /// 클리어 아이콘 그리기
+    /// 클리어 아이콘
     DrawIconEx(hMemDC, 150, 350, EngineData::hIconClear, 50, 50, 0, NULL, DI_NORMAL);
 
     swprintf_s(buffer, 50, L"클리어 : 이 지점에 도달 시 게임은 클리어 됩니다.");
     TextOut(hMemDC, 250, 370, buffer, wcslen(buffer));
+
+    /// 커스텀 모드 아이콘
+    DrawIconEx(hMemDC, 150, 450, EngineData::developIcon, 50, 50, 0, NULL, DI_NORMAL);
+    
+    swprintf_s(buffer, 50, L"커스텀 모드 : 맵을 자유롭게 커스텀을 할 수 있습니다.");
+    TextOut(hMemDC, 250, 470, buffer, wcslen(buffer));
+
+
+    
 
     swprintf_s(buffer, 150, L"벽 아이콘 제작자: Alfredo Hernandez - Flaticon : https://www.flaticon.com/kr/free-icons/\"title=\"벽돌 아이콘");
     TextOut(hMemDC, 50, 600, buffer, wcslen(buffer));
