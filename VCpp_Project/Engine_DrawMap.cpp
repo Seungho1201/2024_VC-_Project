@@ -11,6 +11,14 @@ void Engine_DrawMap::settingMap()
     /// EngineData::mapGrid[y][x]
     /// developMode 켜서 좌표 확인이 편함
     
+    /// 교수님 처음에 게임 시작을 누를 때 맵을 세팅하는거에 
+    /// 맵 초기화를 추가하였습니다
+    for (int i = 0; i < GRID_ROWS; i++) {
+        for (int j = 0; j < GRID_COLS; j++) {
+            EngineData::mapGrid[i][j] = 0;
+        }
+    }
+
     for (int x = 0; x < 50; x++)
     {
         EngineData::mapGrid[12][x] = 1;     
@@ -111,6 +119,10 @@ void Engine_DrawMap::settingMap()
     }
 
     EngineData::mapGrid[11][25] = 4; // (1, 2) 위치에 아이템을 설정
+
+
+
+    
 }
 
 void Engine_DrawMap::drawMap(HDC hMemDC)
@@ -235,6 +247,7 @@ void Engine_DrawMap::drawMap(HDC hMemDC)
     }
    
 }
+
 
 void Engine_DrawMap::drawInfo(HDC hMemDC)
 {
@@ -398,7 +411,7 @@ void Engine_DrawMap::drawGuide(HDC hMemDC)
     /// 커스텀 모드 아이콘
     DrawIconEx(hMemDC, 150, 450, EngineData::developIcon, 50, 50, 0, NULL, DI_NORMAL);
     
-    swprintf_s(buffer, 50, L"커스텀 모드 : 맵을 자유롭게 커스텀을 할 수 있습니다.");
+    swprintf_s(buffer, 50, L"커스텀 모드 : 맵을 자유롭게 커스텀을 할 수 있습니다.(우클릭으로 그림)");
     TextOut(hMemDC, 250, 470, buffer, wcslen(buffer));
 
 

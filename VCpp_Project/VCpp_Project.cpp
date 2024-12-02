@@ -133,15 +133,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 const int offset = 50; // 상단 및 왼쪽 오프셋 설정
 
+/// true 반환시 충돌 O, false 반환시 충돌 X
 bool IsCollidingWithWall(RECT player, int grid[GRID_ROWS][GRID_COLS], int dx, int dy)
 {
+    /// 플레이어의 위치를 중력 값 + 이동 가속도 값을 미리 반영한 RECT로 검사
+    /// 
     RECT newPlayerPosition = { player.left + dx, player.top + dy, player.right + dx, player.bottom + dy };
 
-    // 플레이어의 위치를 기준으로 검사할 격자 영역 계산
+    /// 플레이어의 위치를 기준으로 검사할 격자 영역 계산
+    /// max(0, 플레이어 예정 위치 - 맵의 오프셋 (50px) / 셀 크기 (50px)) 0보다 작아질 수 없음
     int startRow =  max(0, (newPlayerPosition.top - EngineData::mapOffset) / CELL_HEIGHT);
-    int endRow =    min(GRID_ROWS - 1, (newPlayerPosition.bottom - EngineData::mapOffset) / CELL_HEIGHT);
     int startCol =  max(0, (newPlayerPosition.left - EngineData::mapOffset) / CELL_WIDTH);
-    int endCol =    min(GRID_COLS - 1, (newPlayerPosition.right - EngineData::mapOffset) / CELL_WIDTH);
+
+    /// min(GRID_ROWS - 1, (newPlayerPosition.bottom - EngineData::mapOffset) / CELL_HEIGHT);
+    /// 최대 배열 값을 넘어설 수 없게 min 사용
+    int endRow  =   min(GRID_ROWS - 1, (newPlayerPosition.bottom - EngineData::mapOffset) / CELL_HEIGHT);
+    int endCol  =   min(GRID_COLS - 1, (newPlayerPosition.right - EngineData::mapOffset) / CELL_WIDTH);
 
     // 지정된 범위 내의 격자만 검사
     for (int i = startRow; i <= endRow; i++)
@@ -150,6 +157,7 @@ bool IsCollidingWithWall(RECT player, int grid[GRID_ROWS][GRID_COLS], int dx, in
         {
             if (EngineData::mapGrid[i][j] == 1) // 벽인 경우
             {
+                /// 범위 내 해당하는 RECT만 interSect 검사
                 RECT wallRect = { 
                     j * CELL_WIDTH  + EngineData::mapOffset,
                     i * CELL_HEIGHT + EngineData::mapOffset,
@@ -157,9 +165,9 @@ bool IsCollidingWithWall(RECT player, int grid[GRID_ROWS][GRID_COLS], int dx, in
                     (i + 1) * CELL_HEIGHT + EngineData::mapOffset
                 };
 
-                RECT intersection;
+                RECT zzzz;  /// 반환용 RECT
 
-                if (IntersectRect(&intersection, &newPlayerPosition, &wallRect))
+                if (IntersectRect(&zzzz, &newPlayerPosition, &wallRect))
                 {
                     return true; // 충돌 발생
                 }
@@ -327,8 +335,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
     {
-        
-       
+        /// Release에선 비트맵 로드는 WM_CREATE에서 로딩해야 되는데
+        /// Debug에선 CREATE에선 안되더라구요...?
+
+        /// 배경 이미지 로드
+        EngineData::hBackground = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_BACKGROUND2), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+
+        /// 가이드 이미지 로드
+        guideImg = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_SPARKIMG), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+
     }
     break;
 
@@ -363,13 +378,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             startPoint = EngineData::userBox;
 
-            /// 처음 들어갈 때만 초기 맵 세팅 
-            if (mainFirst)
-            {
-                /// Engine_DrawMap 파일에서 맵과 아이템 구성
-                Engine_DrawMap::settingMap();
-                mainFirst = false;
-            }
+
+            /// Engine_DrawMap 파일에서 맵과 아이템 구성
+            Engine_DrawMap::settingMap();
+            mainFirst = false;
+            
 
             /// 중력 타이머 설정
             SetTimer(hWnd, IDT_GRAVITY_TIMER, 2, NULL);
@@ -377,9 +390,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             /// 현재 창의 크기를 받아 이미지 움직임
             imageMove = (clientRect.left + clientRect.right) / 2.0;
 
-            /// 배경 이미지 로드
-            EngineData::hBackground = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_BACKGROUND2), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
-           
+            
             EngineData::hIcon = (HICON)LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_WALLBRICK),IMAGE_ICON,50,50,0);
 
             EngineData::hIconItem = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_JUMPBRICK),IMAGE_ICON,50, 50, 0 );
@@ -425,7 +436,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             guide = true;
 
-            guideImg = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_SPARKIMG), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
             
             EngineData::hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_WALLBRICK), IMAGE_ICON, 50, 50, 0);
 
@@ -723,7 +733,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 isJumping = false;                 /// 아이템 충돌시 점프 다시 가능
             }
 
-
             /// 장애물 충돌 여부 확인
             else if (IsCollidingWithEnemy(EngineData::userBox, EngineData::mapGrid, 0, 0))
             {
@@ -748,8 +757,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 imageMove = (clientRect.left + clientRect.right) / 2.0;
             }
 
-
-            /// 장애물 충돌 여부 확인
+            /// 클리어 지점 충돌 여부 확인
             else if (IsCollidingWithClear(EngineData::userBox, EngineData::mapGrid, 0, 0))
             {
                 /// 타이머 전부 종료
@@ -763,7 +771,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 // 메시지 출력
                 MessageBox(hWnd, message, L"클리어", MB_OK);
             }
-
 
             /// 중력 타이머에서의 충돌 X일 시
             if (!IsCollidingWithWall(EngineData::userBox, EngineData::mapGrid, 0, EngineData::gravityVelocity))
@@ -794,7 +801,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 /// 충돌 발생 시 바운스
                 if (EngineData::gravityVelocity > 3.5) 
                 {
-                    /// 탄성 계수는 현 중력에 비례한 속도 유지
+                    /// 탄성 계수는 현 중력에 비례한 속도 유지(1.75)
                     EngineData::gravityVelocity = -EngineData::gravityVelocity / 1.75;    
                 } 
                 else {      /// 중력이 일정값 이하일 시 기본 중력값 설정
@@ -886,7 +893,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         /// 맵 출력
         if (playMap1)
         {
-
             /// 배경 이미지 출력
             if (EngineData::hBackground)
             {
@@ -922,6 +928,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
             developButtton.drawRectButton(hMemDC, IDI_DEVELOPBUTTON);
         }
+
         /// 가이드 출력
         else if (guide)
         {
@@ -952,12 +959,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             /// 나가기 버튼 출력
             exitButton.drawRectButton(hMemDC, IDI_EXITBUTTON);
         }
+
         /// 더블 버퍼링된 내용을 화면에 출력
         BitBlt(hdc, 0, 0, width, height, hMemDC, 0, 0, SRCCOPY);
 
         EndPaint(hWnd, &ps);
         break;
     }
+
     case WM_ERASEBKGND:
         return 1; // 화면 지우기 방지
 

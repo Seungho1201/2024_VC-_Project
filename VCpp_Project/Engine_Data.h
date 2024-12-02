@@ -7,6 +7,8 @@
 class EngineData {
 public:
     static int mapGrid[GRID_ROWS][GRID_COLS];   // 2차원 맵
+
+    static int mapGridDev[GRID_ROWS][GRID_COLS];   // 2차원 맵
     static int mapOffset;                       // RECT 간격
 
     static float playerSpeed;                   // 플레이어 속도              
